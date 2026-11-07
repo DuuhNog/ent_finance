@@ -53,17 +53,17 @@ export function UpdatePasswordPage() {
 
   if (isLoading) {
     return (
-      <main className="flex min-h-svh items-center justify-center bg-slate-50 p-6">
-        <p className="text-slate-600">Carregando...</p>
+      <main className="flex min-h-svh items-center justify-center bg-stone-900 p-6">
+        <p className="text-stone-400">Carregando...</p>
       </main>
     )
   }
 
   if (session === null) {
     return (
-      <main className="flex min-h-svh items-center justify-center bg-slate-50 p-6">
+      <main className="flex min-h-svh items-center justify-center bg-stone-900 p-6">
         <Card title="Link inválido" bordered className="w-full max-w-sm">
-          <p className="text-sm text-slate-700">
+          <p className="text-sm text-stone-300">
             Esse link de recuperação é inválido ou já expirou. Peça um novo na
             tela de login.
           </p>
@@ -73,7 +73,7 @@ export function UpdatePasswordPage() {
   }
 
   return (
-    <main className="flex min-h-svh items-center justify-center bg-slate-50 p-6">
+    <main className="flex min-h-svh items-center justify-center bg-stone-900 p-6">
       <Card title="Definir nova senha" bordered className="w-full max-w-sm">
         <form
           className="flex flex-col gap-4"
@@ -102,7 +102,7 @@ export function UpdatePasswordPage() {
             fullWidth
           />
           {formError ? (
-            <p role="alert" className="text-sm text-red-600">
+            <p role="alert" className="text-sm text-red-400">
               {formError}
             </p>
           ) : null}

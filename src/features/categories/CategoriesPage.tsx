@@ -18,7 +18,7 @@ function CategoryRow({ category }: { category: Category }) {
   const archive = useArchiveCategory()
 
   return (
-    <li className="flex items-center gap-2 border-b border-slate-100 py-2 last:border-0">
+    <li className="flex items-center gap-2 border-b border-stone-800 py-2 last:border-0">
       {isEditing ? (
         <>
           <Input
@@ -48,7 +48,7 @@ function CategoryRow({ category }: { category: Category }) {
         </>
       ) : (
         <>
-          <span className="flex-1 text-slate-900">
+          <span className="flex-1 text-stone-50">
             {category.name}
             {category.is_savings ? (
               <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-800">
@@ -56,7 +56,7 @@ function CategoryRow({ category }: { category: Category }) {
               </span>
             ) : null}
             {archiveError ? (
-              <span className="block text-xs text-red-600">{archiveError}</span>
+              <span className="block text-xs text-red-400">{archiveError}</span>
             ) : null}
           </span>
           <Button
@@ -149,15 +149,15 @@ export function CategoriesPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-lg font-semibold text-slate-900">Categorias</h2>
+      <h2 className="text-lg font-semibold text-stone-50">Categorias</h2>
 
       <NewCategoryForm />
 
       {categoriesQuery.isPending ? (
-        <p className="text-slate-600">Carregando...</p>
+        <p className="text-stone-400">Carregando...</p>
       ) : null}
       {categoriesQuery.isError ? (
-        <p className="text-red-600">Não foi possível carregar as categorias.</p>
+        <p className="text-red-400">Não foi possível carregar as categorias.</p>
       ) : null}
 
       <ul>

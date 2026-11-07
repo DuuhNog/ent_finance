@@ -21,18 +21,18 @@ function TrashRow({
   const [error, setError] = useState<string | null>(null)
 
   return (
-    <li className="flex items-center gap-3 border-b border-slate-100 py-3 last:border-0">
+    <li className="flex items-center gap-3 border-b border-stone-800 py-3 last:border-0">
       <div className="min-w-0 flex-1">
-        <p className="truncate font-medium text-slate-900">
+        <p className="truncate font-medium text-stone-50">
           {transaction.description ?? category?.name ?? 'Lançamento'}
         </p>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-stone-400">
           {category?.name ?? 'Sem categoria'} ·{' '}
           {isoDateToDate(transaction.occurred_on).toLocaleDateString('pt-BR')}
         </p>
-        {error ? <p className="text-xs text-red-600">{error}</p> : null}
+        {error ? <p className="text-xs text-red-400">{error}</p> : null}
       </div>
-      <span className="shrink-0 font-semibold text-slate-900">
+      <span className="shrink-0 font-semibold text-stone-50">
         {formatMoney(transaction.amount_cents)}
       </span>
       <Button
@@ -68,20 +68,20 @@ export function TrashPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-lg font-semibold text-slate-900">Lixeira</h2>
-      <p className="text-sm text-slate-600">
+      <h2 className="text-lg font-semibold text-stone-50">Lixeira</h2>
+      <p className="text-sm text-stone-400">
         Lançamentos excluídos ficam aqui até você restaurar — nada é apagado de
         verdade.
       </p>
 
       {deletedQuery.isPending ? (
-        <p className="text-slate-600">Carregando...</p>
+        <p className="text-stone-400">Carregando...</p>
       ) : null}
       {deletedQuery.isError ? (
-        <p className="text-red-600">Não foi possível carregar a lixeira.</p>
+        <p className="text-red-400">Não foi possível carregar a lixeira.</p>
       ) : null}
       {deletedQuery.data?.length === 0 ? (
-        <p className="text-slate-500">Nenhum lançamento excluído.</p>
+        <p className="text-stone-400">Nenhum lançamento excluído.</p>
       ) : null}
 
       <ul>

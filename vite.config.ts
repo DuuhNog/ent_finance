@@ -17,8 +17,8 @@ export default defineConfig({
         short_name: 'Meu dinheiro',
         description: 'Controle financeiro pessoal para a casa.',
         lang: 'pt-BR',
-        theme_color: '#0f766e',
-        background_color: '#f8fafc',
+        theme_color: '#1c1917',
+        background_color: '#1c1917',
         display: 'standalone',
         start_url: '/',
         icons: [

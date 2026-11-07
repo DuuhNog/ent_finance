@@ -103,3 +103,19 @@ export function formatMoney(cents: number): string {
     currency: 'BRL',
   }).format(cents / 100)
 }
+
+/**
+ * Máscara de centavos para o campo "Valor (R$)": a cada tecla, recebe o
+ * valor bruto do input (o que `onChange` devolveu) e reformata como se os 2
+ * últimos dígitos digitados fossem sempre os centavos (ex.: digitar
+ * "123456" mostra "1.234,56"; apagar remove da direita pra esquerda).
+ * Ignora qualquer caractere que não seja dígito, então funciona tanto para
+ * o texto já formatado (vírgula/pontos) quanto para colar um valor com
+ * "R$". Entrada vazia (campo limpo) retorna string vazia. O resultado
+ * sempre pode ser parseado de volta por `parseMoney`.
+ */
+export function formatMoneyMaskInput(rawValue: string): string {
+  const digits = rawValue.replace(/\D/g, '').slice(0, 15)
+  if (digits.length === 0) return ''
+  return formatMoneyInput(Number.parseInt(digits, 10))
+}

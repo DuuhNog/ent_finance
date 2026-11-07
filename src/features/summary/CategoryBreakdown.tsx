@@ -22,7 +22,7 @@ export function CategoryBreakdown({
 
   if (entries.length === 0) {
     return (
-      <p className="text-sm text-slate-500">Nenhum gasto lançado neste mês.</p>
+      <p className="text-sm text-stone-400">Nenhum gasto lançado neste mês.</p>
     )
   }
 
@@ -33,10 +33,10 @@ export function CategoryBreakdown({
     <ul className="flex flex-col gap-2">
       {entries.map((entry) => (
         <li key={entry.categoryId} className="flex items-center gap-3">
-          <span className="w-24 shrink-0 truncate text-sm text-slate-700">
+          <span className="w-24 shrink-0 truncate text-sm text-stone-300">
             {entry.name}
           </span>
-          <span className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
+          <span className="h-2 flex-1 overflow-hidden rounded-full bg-stone-800">
             <span
               className="block h-full rounded-full"
               style={{
@@ -45,9 +45,9 @@ export function CategoryBreakdown({
               }}
             />
           </span>
-          <span className="w-28 shrink-0 text-right text-sm tabular-nums text-slate-900">
+          <span className="w-28 shrink-0 text-right text-sm tabular-nums text-stone-50">
             {formatMoney(entry.amountCents)}{' '}
-            <span className="text-slate-500">
+            <span className="text-stone-400">
               ({Math.round((entry.amountCents / total) * 100)}%)
             </span>
           </span>

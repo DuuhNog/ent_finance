@@ -28,20 +28,30 @@ export function MonthlyChart({ months }: { months: MonthTotal[] }) {
   return (
     <ResponsiveContainer width="100%" height={220}>
       <BarChart data={data} barCategoryGap="30%">
-        <CartesianGrid vertical={false} stroke="#e1e0d9" />
+        <CartesianGrid vertical={false} stroke="#2c2c2a" />
         <XAxis
           dataKey="month"
           tickLine={false}
-          axisLine={{ stroke: '#c3c2b7' }}
+          axisLine={{ stroke: '#383835' }}
           tick={{ fill: '#898781', fontSize: 12 }}
         />
         <Tooltip
+          contentStyle={{
+            backgroundColor: '#292524',
+            borderColor: '#44403c',
+            borderRadius: 6,
+          }}
+          labelStyle={{ color: '#f0efec' }}
+          itemStyle={{ color: '#f0efec' }}
           formatter={(value, name) => [
             formatMoney(typeof value === 'number' ? value : 0),
             SERIES_LABELS[String(name)],
           ]}
         />
-        <Legend formatter={(value: string) => SERIES_LABELS[value]} />
+        <Legend
+          formatter={(value: string) => SERIES_LABELS[value]}
+          wrapperStyle={{ color: '#c3c2b7' }}
+        />
         <Bar
           dataKey="outros"
           stackId="total"

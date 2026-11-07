@@ -7,8 +7,8 @@ export function ProtectedRoute() {
 
   if (isLoading) {
     return (
-      <main className="flex min-h-svh items-center justify-center bg-slate-50 p-6">
-        <p className="text-slate-600">Carregando...</p>
+      <main className="flex min-h-svh items-center justify-center bg-stone-900 p-6">
+        <p className="text-stone-400">Carregando...</p>
       </main>
     )
   }
@@ -25,8 +25,8 @@ export function PublicOnlyRoute() {
 
   if (isLoading) {
     return (
-      <main className="flex min-h-svh items-center justify-center bg-slate-50 p-6">
-        <p className="text-slate-600">Carregando...</p>
+      <main className="flex min-h-svh items-center justify-center bg-stone-900 p-6">
+        <p className="text-stone-400">Carregando...</p>
       </main>
     )
   }

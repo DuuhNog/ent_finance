@@ -18,7 +18,7 @@ export function PaymentMethodBreakdown({
 
   if (entries.length === 0) {
     return (
-      <p className="text-sm text-slate-500">Nenhum gasto lançado neste mês.</p>
+      <p className="text-sm text-stone-400">Nenhum gasto lançado neste mês.</p>
     )
   }
 
@@ -48,11 +48,11 @@ export function PaymentMethodBreakdown({
                 className="h-2.5 w-2.5 shrink-0 rounded-full"
                 style={{ backgroundColor: PAYMENT_METHOD_COLORS[method.value] }}
               />
-              <span className="flex-1 text-slate-700">{method.label}</span>
-              <span className="font-medium text-slate-900">
+              <span className="flex-1 text-stone-300">{method.label}</span>
+              <span className="font-medium text-stone-50">
                 {formatMoney(value)}
               </span>
-              <span className="w-10 text-right text-slate-500">
+              <span className="w-10 text-right text-stone-400">
                 {Math.round((value / total) * 100)}%
               </span>
             </li>

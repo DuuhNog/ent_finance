@@ -22,39 +22,39 @@ export function TransactionRow({
   const isIncome = transaction.kind === 'income'
 
   return (
-    <li className="flex items-center gap-3 border-b border-slate-100 py-3 last:border-0">
+    <li className="flex items-center gap-3 border-b border-stone-800 py-3 last:border-0">
       <span
-        className={`h-2.5 w-2.5 shrink-0 rounded-full ${isIncome ? 'bg-emerald-600' : 'bg-slate-400'}`}
+        className={`h-2.5 w-2.5 shrink-0 rounded-full ${isIncome ? 'bg-emerald-600' : 'bg-stone-400'}`}
         aria-hidden
       />
       <div className="min-w-0 flex-1">
-        <p className="truncate font-medium text-slate-900">{label}</p>
-        <p className="flex flex-wrap items-center gap-1 text-xs text-slate-500">
+        <p className="truncate font-medium text-stone-50">{label}</p>
+        <p className="flex flex-wrap items-center gap-1 text-xs text-stone-400">
           <span>{category?.name ?? 'Sem categoria'}</span>
           {transaction.payment_method === 'credit_card' ? (
-            <span className="rounded-full bg-slate-100 px-1.5 py-0.5">
+            <span className="rounded-full bg-stone-800 px-1.5 py-0.5">
               Cartão
             </span>
           ) : null}
           {transaction.installment_number !== null ? (
-            <span className="rounded-full bg-slate-100 px-1.5 py-0.5">
+            <span className="rounded-full bg-stone-800 px-1.5 py-0.5">
               parcela {transaction.installment_number}/
               {transaction.installment_total}
             </span>
           ) : null}
           {transaction.recurring_bill_id !== null ? (
-            <span className="rounded-full bg-slate-100 px-1.5 py-0.5">
+            <span className="rounded-full bg-stone-800 px-1.5 py-0.5">
               conta do mês
             </span>
           ) : null}
           {author ? <span>· lançado por {author.display_name}</span> : null}
         </p>
         {deleteError ? (
-          <p className="mt-1 text-xs text-red-600">{deleteError}</p>
+          <p className="mt-1 text-xs text-red-400">{deleteError}</p>
         ) : null}
       </div>
       <span
-        className={`shrink-0 font-semibold ${isIncome ? 'text-emerald-700' : 'text-slate-900'}`}
+        className={`shrink-0 font-semibold ${isIncome ? 'text-emerald-400' : 'text-stone-50'}`}
       >
         {isIncome ? '+ ' : ''}
         {formatMoney(transaction.amount_cents)}

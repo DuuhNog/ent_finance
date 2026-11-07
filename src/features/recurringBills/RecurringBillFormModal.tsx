@@ -2,7 +2,7 @@ import { Button, Checkbox, Input, Modal, Select } from '@single-ui/react'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 
-import { parseMoney } from '../../lib/money'
+import { formatMoneyMaskInput, parseMoney } from '../../lib/money'
 import { PAYMENT_METHODS } from '../../lib/supabase/types'
 import type { PaymentMethod } from '../../lib/supabase/types'
 import { useCategories } from '../categories/useCategories'
@@ -108,10 +108,12 @@ export function RecurringBillFormModal({ onClose }: { onClose: () => void }) {
         <Input
           label="Valor (R$)"
           aria-label="Valor (R$)"
-          inputMode="decimal"
+          inputMode="numeric"
           placeholder="0,00"
           value={amountInput}
-          onChange={setAmountInput}
+          onChange={(value) => {
+            setAmountInput(formatMoneyMaskInput(value))
+          }}
           error={errors.amount}
           fullWidth
         />
@@ -152,7 +154,7 @@ export function RecurringBillFormModal({ onClose }: { onClose: () => void }) {
         />
 
         {formError ? (
-          <p role="alert" className="text-sm text-red-600">
+          <p role="alert" className="text-sm text-red-400">
             {formError}
           </p>
         ) : null}

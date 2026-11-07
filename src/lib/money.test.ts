@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import {
   formatMoney,
   formatMoneyInput,
+  formatMoneyMaskInput,
   MAX_AMOUNT_CENTS,
   parseMoney,
 } from './money'
@@ -68,5 +69,36 @@ describe('formatMoney', () => {
 describe('formatMoneyInput', () => {
   it('formats cents as editable pt-BR text, no currency symbol', () => {
     expect(formatMoneyInput(104166)).toBe('1.041,66')
+  })
+})
+
+describe('formatMoneyMaskInput', () => {
+  it.each([
+    ['', ''],
+    ['1', '0,01'],
+    ['12', '0,12'],
+    ['123', '1,23'],
+    ['1234', '12,34'],
+    ['123456', '1.234,56'],
+    ['007', '0,07'],
+    ['1.234,56', '1.234,56'],
+    ['R$ 1.234,56', '1.234,56'],
+    ['abc', ''],
+    ['12a3b4', '12,34'],
+  ])('formatMoneyMaskInput(%s) === %s', (input, expected) => {
+    expect(formatMoneyMaskInput(input)).toBe(expected)
+  })
+
+  it('caps absurdly long digit strings instead of overflowing', () => {
+    const result = formatMoneyMaskInput('9'.repeat(30))
+    expect(result).toBe(formatMoneyInput(Number.parseInt('9'.repeat(15), 10)))
+  })
+
+  it('property: typing the digits of any valid amount re-parses to the same cents', () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 1, max: MAX_AMOUNT_CENTS }), (cents) => {
+        expect(parseMoney(formatMoneyMaskInput(String(cents)))).toBe(cents)
+      }),
+    )
   })
 })

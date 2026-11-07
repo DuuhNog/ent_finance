@@ -20,7 +20,9 @@ const NAV_ITEMS = [
 function navLinkClassName({ isActive }: { isActive: boolean }): string {
   return [
     'whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium transition-colors',
-    isActive ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-200',
+    isActive
+      ? 'bg-stone-50 text-stone-900'
+      : 'text-stone-400 hover:bg-stone-800',
   ].join(' ')
 }
 
@@ -32,10 +34,10 @@ export function AppLayout() {
 
   return (
     <MonthProvider>
-      <div className="min-h-svh bg-slate-50 pb-24">
-        <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/90 backdrop-blur">
-          <div className="mx-auto flex max-w-2xl items-center justify-between gap-2 px-4 py-3">
-            <h1 className="truncate text-lg font-semibold text-slate-900">
+      <div className="min-h-svh bg-stone-900 pb-24">
+        <header className="sticky top-0 z-10 border-b border-stone-700 bg-stone-900/90 backdrop-blur">
+          <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3">
+            <h1 className="truncate text-lg font-semibold text-stone-50">
               {householdQuery.data?.name ?? 'Aonde vai o meu dinheiro'}
             </h1>
             <Button
@@ -50,7 +52,7 @@ export function AppLayout() {
           </div>
           <nav
             aria-label="Seções"
-            className="mx-auto flex max-w-2xl gap-2 overflow-x-auto px-4 pb-3"
+            className="mx-auto flex max-w-6xl gap-2 overflow-x-auto px-4 pb-3"
           >
             {NAV_ITEMS.map((item) => (
               <NavLink
@@ -65,11 +67,11 @@ export function AppLayout() {
           </nav>
         </header>
 
-        <main className="mx-auto max-w-2xl px-4 py-4">
+        <main className="mx-auto max-w-6xl px-4 py-4">
           {profileQuery.isPending || householdQuery.isPending ? (
-            <p className="text-slate-600">Carregando...</p>
+            <p className="text-stone-400">Carregando...</p>
           ) : profileQuery.isError || householdQuery.isError ? (
-            <p className="text-red-600">
+            <p className="text-red-400">
               Não foi possível carregar os dados da casa. Tente novamente mais
               tarde.
             </p>

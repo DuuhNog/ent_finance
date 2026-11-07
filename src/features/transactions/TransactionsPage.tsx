@@ -125,27 +125,27 @@ export function TransactionsPage() {
         </div>
       </div>
 
-      <p className="text-sm text-slate-600">
+      <p className="text-sm text-stone-400">
         {filtered.length} lançamento(s) · Saldo dos itens:{' '}
         {formatMoney(netCents)}
       </p>
 
       {transactionsQuery.isPending ? (
-        <p className="text-slate-600">Carregando...</p>
+        <p className="text-stone-400">Carregando...</p>
       ) : null}
       {transactionsQuery.isError ? (
-        <p className="text-red-600">
+        <p className="text-red-400">
           Não foi possível carregar os lançamentos.
         </p>
       ) : null}
 
       {groups.length === 0 && transactionsQuery.isSuccess ? (
-        <p className="text-slate-500">Nenhum lançamento encontrado.</p>
+        <p className="text-stone-400">Nenhum lançamento encontrado.</p>
       ) : null}
 
       {groups.map((group) => (
         <section key={group.occurredOn}>
-          <h2 className="mb-1 text-sm font-medium text-slate-500">
+          <h2 className="mb-1 text-sm font-medium text-stone-400">
             {formatDayHeading(group.occurredOn)}
           </h2>
           <ul>

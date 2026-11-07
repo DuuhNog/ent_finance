@@ -6,7 +6,12 @@ import {
   goalProgressTextColorClass,
 } from '../../lib/chartColors'
 import { getGoalProgress } from '../../lib/finance'
-import { formatMoney, formatMoneyInput, parseMoney } from '../../lib/money'
+import {
+  formatMoney,
+  formatMoneyInput,
+  formatMoneyMaskInput,
+  parseMoney,
+} from '../../lib/money'
 import type { Category, Goal } from '../../lib/supabase/types'
 import { useArchiveGoal, useUpdateGoalAmount } from './useGoals'
 
@@ -52,9 +57,9 @@ export function GoalCard({
   }
 
   return (
-    <div className="rounded-lg border border-slate-200 p-4">
+    <div className="rounded-lg border border-stone-700 p-4">
       <div className="flex items-start justify-between gap-2">
-        <h3 className="font-semibold text-slate-900">
+        <h3 className="font-semibold text-stone-50">
           {goalTitle(goal, category)}
         </h3>
         <div className="flex shrink-0 gap-2">
@@ -80,7 +85,7 @@ export function GoalCard({
         </div>
       </div>
 
-      <p className="mt-1 text-sm text-slate-600">
+      <p className="mt-1 text-sm text-stone-400">
         {formatMoney(currentCents)} de {formatMoney(goal.amount_cents)}
         {goal.kind === 'monthly_savings' ? ' neste mês' : ' por mês'}
       </p>
@@ -88,7 +93,7 @@ export function GoalCard({
       <div
         role="img"
         aria-label={`${String(Math.round(progress.percentage * 100))}% da meta`}
-        className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100"
+        className="mt-2 h-2 overflow-hidden rounded-full bg-stone-800"
       >
         <div
           className={`h-full ${goalProgressBarColorClass(progress.level)}`}
@@ -115,9 +120,11 @@ export function GoalCard({
           <Input
             label="Novo valor (R$)"
             aria-label="Novo valor (R$)"
-            inputMode="decimal"
+            inputMode="numeric"
             value={amountInput}
-            onChange={setAmountInput}
+            onChange={(value) => {
+              setAmountInput(formatMoneyMaskInput(value))
+            }}
             error={amountError ?? undefined}
           />
           <Button

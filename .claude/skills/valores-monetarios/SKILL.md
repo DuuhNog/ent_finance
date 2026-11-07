@@ -25,14 +25,14 @@ projeto. Esta skill existe para você nunca reinventar isso num componente.
 ## Arquivos envolvidos
 
 - `src/lib/money.ts` — `parseMoney`, `formatMoney`, `formatMoneyInput`,
-  `MIN_AMOUNT_CENTS`, `MAX_AMOUNT_CENTS`. **O único módulo** que faz essa
-  conversão.
+  `formatMoneyMaskInput`, `MIN_AMOUNT_CENTS`, `MAX_AMOUNT_CENTS`. **O único
+  módulo** que faz essa conversão.
 - `src/lib/money.test.ts` — tabela de casos + propriedade `fast-check`
   (`parseMoney(formatMoneyInput(c)) === c`), 100% de cobertura obrigatória.
 - Qualquer campo "Valor (R$)" em qualquer formulário (`TransactionFormModal`,
-  `RecurringBillFormModal`, `GoalFormModal`, `RecurringBillRow`) segue o
-  mesmo padrão: `Input` de texto comum (não a máscara `currency-brl` da
-  lib `@single-ui/react` — decidimos não usar, porque nossas regras de
+  `RecurringBillFormModal`, `GoalFormModal`, `GoalCard`, `RecurringBillRow`)
+  segue o mesmo padrão: `Input` de texto comum (não a máscara `currency-brl`
+  da lib `@single-ui/react` — decidimos não usar, porque nossas regras de
   parse são mais específicas que uma máscara genérica), com `parseMoney` no
   submit e `formatMoneyInput`/`formatMoney` para mostrar valor existente.
 
@@ -40,13 +40,21 @@ projeto. Esta skill existe para você nunca reinventar isso num componente.
 
 1. Qualquer regra nova de parse/formatação: só em `money.ts`, com teste
    novo em `money.test.ts` antes de mexer em qualquer formulário.
-2. Formulário novo com campo de valor: `useState('')` para o texto digitado
-   (nunca formate a cada tecla — isso atrapalha quem está digitando),
-   `parseMoney` só no submit, erro de validação com a mensagem padrão
+2. Formulário novo com campo de valor: `useState('')` para o texto digitado,
+   `onChange={(value) => setAmountInput(formatMoneyMaskInput(value))}` —
+   **decisão revertida em 2026-11-07**: o campo já formata a cada tecla como
+   máscara de centavos (só dígitos; os 2 últimos são sempre os centavos, ex.
+   digitar "123456" mostra "1.234,56"), então o usuário nunca digita a
+   vírgula. `inputMode="numeric"` (não mais `"decimal"`, já que vírgula/ponto
+   não são mais digitados). `parseMoney` continua rodando só no submit —
+   `formatMoneyMaskInput` cuida da forma do texto, `parseMoney` continua
+   sendo a única fonte da regra de negócio (min/máx), com a mensagem padrão
    "Digite um valor maior que zero, por exemplo 25,90." quando inválido.
 3. Para pré-preencher um valor existente (editar), use
-   `formatMoneyInput(cents)`, não `formatMoney` (que inclui "R$" e isso
-   complica reparsear se o usuário só apertar Enter sem mexer).
+   `formatMoneyInput(cents)` como valor inicial do `useState`, não
+   `formatMoney` (que inclui "R$" e isso complica reparsear se o usuário só
+   apertar Enter sem mexer). Dali em diante o `onChange` com
+   `formatMoneyMaskInput` cuida do resto normalmente.
 
 ## Testes obrigatórios
 

@@ -79,7 +79,7 @@ export function RecurringBillsPage() {
       <MonthSwitcher />
 
       <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-stone-400">
           {paidCount} de {bills.length} pagas. Pago:{' '}
           {formatMoney(paidTotalCents)}. Falta pagar:{' '}
           {formatMoney(pendingTotalCents)}.
@@ -96,13 +96,13 @@ export function RecurringBillsPage() {
       </div>
 
       {billsQuery.isPending ? (
-        <p className="text-slate-600">Carregando...</p>
+        <p className="text-stone-400">Carregando...</p>
       ) : null}
       {billsQuery.isError ? (
-        <p className="text-red-600">Não foi possível carregar as contas.</p>
+        <p className="text-red-400">Não foi possível carregar as contas.</p>
       ) : null}
       {bills.length === 0 && billsQuery.isSuccess ? (
-        <p className="text-slate-500">Nenhuma conta cadastrada ainda.</p>
+        <p className="text-stone-400">Nenhuma conta cadastrada ainda.</p>
       ) : null}
 
       <ul>
@@ -121,7 +121,7 @@ export function RecurringBillsPage() {
         ))}
       </ul>
 
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-stone-400">
         Ao marcar uma conta como paga, ela vira um lançamento do mês
         automaticamente. Contas pagas no cartão contam no limite do cartão.
       </p>

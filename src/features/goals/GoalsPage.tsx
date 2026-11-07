@@ -37,7 +37,7 @@ export function GoalsPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-slate-900">Suas metas</h2>
+        <h2 className="text-lg font-semibold text-stone-50">Suas metas</h2>
         <Button
           variant="primary"
           size="sm"
@@ -50,13 +50,13 @@ export function GoalsPage() {
       </div>
 
       {goalsQuery.isPending ? (
-        <p className="text-slate-600">Carregando...</p>
+        <p className="text-stone-400">Carregando...</p>
       ) : null}
       {goalsQuery.isError ? (
-        <p className="text-red-600">Não foi possível carregar as metas.</p>
+        <p className="text-red-400">Não foi possível carregar as metas.</p>
       ) : null}
       {goalsQuery.data?.length === 0 ? (
-        <p className="text-slate-500">
+        <p className="text-stone-400">
           Uma boa primeira meta: um limite mensal para o cartão de crédito.
         </p>
       ) : null}

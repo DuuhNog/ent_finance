@@ -5,7 +5,12 @@ import { dueDateForCompetenceMonth } from '../../lib/competenceMonth'
 import { estimateVariableBillAmount, getBillStatus } from '../../lib/finance'
 import type { BillPayment } from '../../lib/finance'
 import { daysBetweenIsoDates, todayIsoDate } from '../../lib/isoDate'
-import { formatMoney, formatMoneyInput, parseMoney } from '../../lib/money'
+import {
+  formatMoney,
+  formatMoneyInput,
+  formatMoneyMaskInput,
+  parseMoney,
+} from '../../lib/money'
 import { PAYMENT_METHODS } from '../../lib/supabase/types'
 import type {
   Category,
@@ -16,11 +21,11 @@ import { useSoftDeleteTransaction } from '../transactions/useTransactions'
 import { usePayRecurringBill } from './useRecurringBills'
 
 const STATUS_LABELS = {
-  paid: { text: 'paga', className: 'bg-emerald-100 text-emerald-800' },
-  overdue: { text: 'atrasada', className: 'bg-rose-100 text-rose-800' },
+  paid: { text: 'paga', className: 'bg-emerald-900 text-emerald-300' },
+  overdue: { text: 'atrasada', className: 'bg-rose-900 text-rose-300' },
   due_soon: {
     text: 'vence em breve',
-    className: 'bg-amber-100 text-amber-800',
+    className: 'bg-amber-900 text-amber-300',
   },
 } as const
 
@@ -81,10 +86,10 @@ export function RecurringBillRow({
   }
 
   return (
-    <li className="border-b border-slate-100 py-3 last:border-0">
+    <li className="border-b border-stone-800 py-3 last:border-0">
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0">
-          <p className="flex flex-wrap items-center gap-2 font-medium text-slate-900">
+          <p className="flex flex-wrap items-center gap-2 font-medium text-stone-50">
             {bill.name}
             {status !== 'upcoming' ? (
               <span
@@ -98,7 +103,7 @@ export function RecurringBillRow({
               </span>
             ) : null}
           </p>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-stone-400">
             dia {bill.due_day}, {category?.name ?? 'sem categoria'},{' '}
             {paymentMethodLabel(bill.payment_method)}
             {bill.is_variable ? ', valor muda todo mês' : ''}
@@ -108,7 +113,7 @@ export function RecurringBillRow({
         {status === 'paid' && payment ? (
           <div className="flex shrink-0 flex-col items-end gap-1">
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-slate-900">
+              <span className="font-semibold text-stone-50">
                 {formatMoney(payment.amount_cents)}
               </span>
               <Button
@@ -128,17 +133,19 @@ export function RecurringBillRow({
               </Button>
             </div>
             {undoError ? (
-              <p className="text-xs text-red-600">{undoError}</p>
+              <p className="text-xs text-red-400">{undoError}</p>
             ) : null}
           </div>
         ) : (
           <div className="flex shrink-0 items-center gap-2">
             <Input
               aria-label={`Valor de ${bill.name}`}
-              inputMode="decimal"
+              inputMode="numeric"
               placeholder={bill.is_variable ? 'valor da conta' : undefined}
               value={amountInput}
-              onChange={setAmountInput}
+              onChange={(value) => {
+                setAmountInput(formatMoneyMaskInput(value))
+              }}
               error={amountError ?? undefined}
               className="w-28"
             />

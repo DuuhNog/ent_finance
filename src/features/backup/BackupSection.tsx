@@ -45,7 +45,7 @@ export function BackupSection() {
 
   return (
     <div>
-      <p className="text-sm text-slate-600">
+      <p className="text-sm text-stone-400">
         Baixa um arquivo com tudo da casa (lançamentos, contas, metas,
         categorias) em JSON, e um CSV só com os lançamentos. Guarde esse arquivo
         num lugar seguro — ele contém dados financeiros reais.
@@ -60,7 +60,7 @@ export function BackupSection() {
       >
         Baixar backup
       </Button>
-      {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="mt-2 text-sm text-red-400">{error}</p> : null}
     </div>
   )
 }

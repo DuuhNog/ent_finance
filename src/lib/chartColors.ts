@@ -3,14 +3,16 @@ import type { PaymentMethod } from './supabase/types'
 
 /**
  * Paleta categórica validada (skill dataviz): ordem fixa, nunca cicla.
- * `node scripts/validate_palette.js` confirmou ΔE seguro para os 5 tons
- * usados abaixo em formas de pagamento.
+ * Estes são os tons da coluna "Dark" de `references/palette.md` (tema é
+ * sempre escuro neste app) — `node scripts/validate_palette.js
+ * "#3987e5,#d95926,#199e70,#c98500,#008300" --mode dark --surface "#1c1917"`
+ * confirmou ΔE seguro para os 5 tons usados abaixo em formas de pagamento.
  */
 export const PAYMENT_METHOD_COLORS: Record<PaymentMethod, string> = {
-  pix: '#2a78d6', // slot 1 azul
-  credit_card: '#eb6834', // slot 2 laranja
-  debit: '#1baf7a', // slot 3 água
-  boleto: '#eda100', // slot 4 amarelo
+  pix: '#3987e5', // slot 1 azul
+  credit_card: '#d95926', // slot 2 laranja
+  debit: '#199e70', // slot 3 água
+  boleto: '#c98500', // slot 4 amarelo
   cash: '#008300', // slot 6 verde
 }
 
@@ -29,7 +31,7 @@ export const STATUS_COLORS = {
 /** Cor única para listas ordenadas (ex.: gastos por categoria) — a
  * identidade está no rótulo, não na cor, então uma série só evita gastar
  * a paleta categórica à toa. */
-export const RANKED_BAR_COLOR = '#2a78d6'
+export const RANKED_BAR_COLOR = '#3987e5'
 
 /**
  * Classes Tailwind para a barra/texto de progresso de uma meta
@@ -38,13 +40,13 @@ export const RANKED_BAR_COLOR = '#2a78d6'
  * telas.
  */
 export function goalProgressBarColorClass(level: GoalProgressLevel): string {
-  if (level === 'good') return 'bg-emerald-600'
+  if (level === 'good') return 'bg-emerald-500'
   if (level === 'warning') return 'bg-amber-500'
-  return 'bg-rose-600'
+  return 'bg-rose-500'
 }
 
 export function goalProgressTextColorClass(level: GoalProgressLevel): string {
-  if (level === 'good') return 'text-emerald-700'
-  if (level === 'warning') return 'text-amber-700'
-  return 'text-rose-700'
+  if (level === 'good') return 'text-emerald-400'
+  if (level === 'warning') return 'text-amber-400'
+  return 'text-rose-400'
 }

@@ -51,7 +51,7 @@ export function MagicLinkForm({ onBack }: { onBack: () => void }) {
   if (isSent) {
     return (
       <div className="flex flex-col gap-4">
-        <p className="text-sm text-slate-700">
+        <p className="text-sm text-stone-300">
           Enviamos um link de acesso para <strong>{email}</strong>. Abra o
           e-mail no mesmo navegador para entrar.
         </p>
@@ -76,7 +76,7 @@ export function MagicLinkForm({ onBack }: { onBack: () => void }) {
         autoFocus
       />
       {formError ? (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className="text-sm text-red-400">
           {formError}
         </p>
       ) : null}

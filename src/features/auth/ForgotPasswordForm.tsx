@@ -46,7 +46,7 @@ export function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
   if (isSent) {
     return (
       <div className="flex flex-col gap-4">
-        <p className="text-sm text-slate-700">
+        <p className="text-sm text-stone-300">
           Se <strong>{email}</strong> tiver uma conta, enviamos um e-mail com um
           link para definir uma nova senha.
         </p>
@@ -71,7 +71,7 @@ export function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
         autoFocus
       />
       {formError ? (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className="text-sm text-red-400">
           {formError}
         </p>
       ) : null}

@@ -2,7 +2,7 @@ import { Button, DatePickerInput, Input, Modal, Select } from '@single-ui/react'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 
-import { parseMoney } from '../../lib/money'
+import { formatMoneyMaskInput, parseMoney } from '../../lib/money'
 import { dateToIsoDate } from '../../lib/isoDate'
 import { PAYMENT_METHODS } from '../../lib/supabase/types'
 import type { PaymentMethod } from '../../lib/supabase/types'
@@ -149,11 +149,11 @@ export function TransactionFormModal({ onClose }: { onClose: () => void }) {
         <Input
           label="Valor (R$)"
           aria-label="Valor (R$)"
-          inputMode="decimal"
+          inputMode="numeric"
           placeholder="0,00"
           value={amountInput}
           onChange={(value) => {
-            setAmountInput(value)
+            setAmountInput(formatMoneyMaskInput(value))
           }}
           error={errors.amount}
           fullWidth
@@ -221,7 +221,7 @@ export function TransactionFormModal({ onClose }: { onClose: () => void }) {
             />
 
             {paymentMethod === 'credit_card' && !creditCardHint.hasSeen ? (
-              <p className="rounded-md bg-amber-50 p-3 text-sm text-amber-900">
+              <p className="rounded-md bg-amber-950 p-3 text-sm text-amber-200">
                 O cartão conta no mês da compra. Quando a fatura chegar, não
                 lance o pagamento dela — isso contaria o gasto duas vezes.
               </p>
@@ -243,7 +243,7 @@ export function TransactionFormModal({ onClose }: { onClose: () => void }) {
         ) : null}
 
         {formError ? (
-          <p role="alert" className="text-sm text-red-600">
+          <p role="alert" className="text-sm text-red-400">
             {formError}
           </p>
         ) : null}

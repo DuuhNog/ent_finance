@@ -75,7 +75,7 @@ function PasswordLoginForm({
         fullWidth
       />
       {formError ? (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className="text-sm text-red-400">
           {formError}
         </p>
       ) : null}
@@ -85,14 +85,14 @@ function PasswordLoginForm({
       <div className="flex items-center justify-between text-sm">
         <button
           type="button"
-          className="text-slate-600 underline"
+          className="text-stone-400 underline"
           onClick={onForgotPassword}
         >
           Esqueci minha senha
         </button>
         <button
           type="button"
-          className="text-slate-600 underline"
+          className="text-stone-400 underline"
           onClick={onMagicLink}
         >
           Entrar com link mágico
@@ -112,7 +112,7 @@ export function LoginPage() {
   const [mode, setMode] = useState<Mode>('password')
 
   return (
-    <main className="flex min-h-svh items-center justify-center bg-slate-50 p-6">
+    <main className="flex min-h-svh items-center justify-center bg-stone-900 p-6">
       <Card title={TITLES[mode]} bordered className="w-full max-w-sm">
         {mode === 'password' ? (
           <PasswordLoginForm

@@ -35,10 +35,10 @@ export function SummaryPage() {
       <MonthSwitcher />
 
       {summaryQuery.isPending ? (
-        <p className="text-slate-600">Carregando...</p>
+        <p className="text-stone-400">Carregando...</p>
       ) : null}
       {summaryQuery.isError ? (
-        <p className="text-red-600">
+        <p className="text-red-400">
           Não foi possível carregar o resumo do mês.
         </p>
       ) : null}
@@ -49,14 +49,14 @@ export function SummaryPage() {
             <p
               className={
                 summaryQuery.data.balanceCents >= 0
-                  ? 'text-2xl font-semibold text-emerald-700'
-                  : 'text-2xl font-semibold text-rose-700'
+                  ? 'text-2xl font-semibold text-emerald-400'
+                  : 'text-2xl font-semibold text-rose-400'
               }
             >
               {summaryQuery.data.balanceCents >= 0 ? 'Sobrou ' : 'Faltou '}
               {formatMoney(Math.abs(summaryQuery.data.balanceCents))}
             </p>
-            <p className="mt-1 text-sm text-slate-600">
+            <p className="mt-1 text-sm text-stone-400">
               {summaryQuery.data.pendingBillsTotalCents > 0
                 ? `Faltam ${formatMoney(summaryQuery.data.pendingBillsTotalCents)} em contas. Saldo previsto: ${formatMoney(summaryQuery.data.projectedBalanceCents)}.`
                 : 'Todas as contas do mês estão pagas.'}
@@ -83,14 +83,14 @@ export function SummaryPage() {
 
           {creditCardGoal && creditCardProgress ? (
             <Card title="Cartão de crédito" bordered>
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-stone-400">
                 {formatMoney(summaryQuery.data.creditCardTotalCents)} de{' '}
                 {formatMoney(creditCardGoal.amount_cents)}
               </p>
               <div
                 role="img"
                 aria-label={`${String(Math.round(creditCardProgress.percentage * 100))}% do limite`}
-                className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100"
+                className="mt-2 h-2 overflow-hidden rounded-full bg-stone-800"
               >
                 <div
                   className={`h-full ${goalProgressBarColorClass(creditCardProgress.level)}`}
@@ -134,8 +134,8 @@ function StatTile({
 }) {
   return (
     <div>
-      <p className="text-xs text-slate-500">{label}</p>
-      <p className="font-semibold text-slate-900">{formatMoney(valueCents)}</p>
+      <p className="text-xs text-stone-400">{label}</p>
+      <p className="font-semibold text-stone-50">{formatMoney(valueCents)}</p>
     </div>
   )
 }

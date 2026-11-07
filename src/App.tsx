@@ -38,7 +38,7 @@ const TrashPage = lazy(() =>
 )
 
 function PageFallback() {
-  return <p className="p-4 text-slate-600">Carregando...</p>
+  return <p className="p-4 text-stone-400">Carregando...</p>
 }
 
 function App() {
