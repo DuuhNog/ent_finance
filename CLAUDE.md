@@ -149,6 +149,10 @@ backup, categorias), `/lixeira`.
   construa algo do zero quando a lib genuinamente não cobrir o caso.
 - Não crie política de `delete` em tabelas de dados nem use `on delete
 cascade` em foreign keys de dados financeiros.
+- Nunca rode `supabase db push --include-seed` contra o remoto —
+  `supabase/seed.sql` só tem funções de teste (`tests.authenticate_as`
+  deixa logar como qualquer usuário), que nunca podem chegar no projeto de
+  verdade.
 - Se algo neste documento ou no histórico da conversa estiver ambíguo,
   pergunte antes de assumir.
 

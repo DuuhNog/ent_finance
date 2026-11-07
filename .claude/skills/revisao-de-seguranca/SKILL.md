@@ -28,6 +28,13 @@ revisar qualquer uma delas antes de aprovar.
 - [ ] Toda tabela nova em `public` tem RLS ativado e política para
       `authenticated` usando `private.is_household_member(household_id)`
       (veja a skill `migrations-e-rls`).
+- [ ] Toda foreign key nova para outra tabela de dados da casa (ex.: um
+      `category_id`, `recurring_bill_id`) tem a consistência de casa
+      validada na política de `insert`/`update` (`exists (select 1 from
+<tabela> x where x.id = <coluna> and x.household_id = household_id)`)
+      — não basta validar só `household_id` da própria linha. Já foi uma
+      vulnerabilidade real aqui: dava pra gravar um lançamento na própria
+      casa apontando pra uma categoria de outra casa.
 - [ ] Nenhuma política de `delete` em tabela de dados; privilégio de
       `DELETE` revogado de `authenticated`.
 - [ ] `anon` continua sem nenhum privilégio (o teste

@@ -97,13 +97,22 @@ db` direto, sem `supabase start` antes, falha com erro de conexão
 test db; ...; supabase stop; exit $code)` — não simplifique isso de volta
   para só `supabase test db`, nem no CI.
 - **`supabase stop` guarda um "backup" do estado atual do banco para o
-  próximo `start` ser mais rápido** — isso significa que dados de teste
-  manual (ex.: uma casa de demonstração criada à mão para tirar print) ficam
-  "grudados" e aparecem nos testes pgTAP seguintes se o nome colidir com uma
-  fixture do teste (já aconteceu: uma casa "Nossa casa" criada manualmente
-  inflou a contagem de membros/categorias do teste
-  `07_create_household.sql`). Rode `supabase db reset` depois de qualquer
-  sessão manual no banco local, antes de confiar nos testes de novo.
+  próximo `start` ser mais rápido, e esse `start` seguinte pode não aplicar
+  uma migration nova em cima do backup** (aconteceu de verdade: escrevi uma
+  migration nova corrigindo um problema de segurança, `supabase start`
+  restaurou do backup sem sequer listar "Applying migration ..." para o
+  arquivo novo, e os testes pgTAP falharam porque a correção não estava no
+  banco — não porque a correção estivesse errada). Dois efeitos do mesmo
+  mecanismo de backup:
+  1. Depois de criar/editar uma migration, rode `supabase db reset` (não só
+     confie em `supabase start`) antes de rodar os testes — só `db reset`
+     garante que todas as migrations foram reaplicadas.
+  2. Dados de teste manual (ex.: uma casa de demonstração criada à mão para
+     tirar print) ficam "grudados" e aparecem nos testes pgTAP seguintes se
+     o nome colidir com uma fixture do teste (já aconteceu: uma casa "Nossa
+     casa" criada manualmente inflou a contagem de membros/categorias do
+     teste `07_create_household.sql`). `supabase db reset` resolve os dois
+     casos.
 - **`\i arquivo.sql` dentro de outro script não "gruda" um `SET` anterior
   do jeito esperado** (visto na prática ao testar restauração de backup) —
   concatene os arquivos antes de rodar com `psql -f`, não use `\i` para
