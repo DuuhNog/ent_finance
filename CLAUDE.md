@@ -25,17 +25,17 @@ velocidade de entrega.
 
 ## Comandos
 
-| Comando                                            | O que faz                                  |
-| -------------------------------------------------- | ------------------------------------------ |
-| `npm run dev`                                      | Sobe o app em modo desenvolvimento         |
-| `npm run build`                                    | Typecheck (`tsc -b`) + build de produção   |
-| `npm run lint` / `lint:fix`                        | ESLint                                     |
-| `npm run format` / `format:check`                  | Prettier                                   |
-| `npm run typecheck`                                | Checagem de tipos sem emitir arquivos      |
-| `npm test` / `test:watch` / `test:coverage`        | Vitest                                     |
-| `npm run test:db`                                  | Testes pgTAP do banco (a partir da Fase 2) |
-| `npm run e2e`                                      | Testes Playwright (a partir da Fase 4)     |
-| `supabase gen types typescript --project-id <ref>` | Gera tipos TS a partir do schema remoto    |
+| Comando                                            | O que faz                                |
+| -------------------------------------------------- | ---------------------------------------- |
+| `npm run dev`                                      | Sobe o app em modo desenvolvimento       |
+| `npm run build`                                    | Typecheck (`tsc -b`) + build de produção |
+| `npm run lint` / `lint:fix`                        | ESLint                                   |
+| `npm run format` / `format:check`                  | Prettier                                 |
+| `npm run typecheck`                                | Checagem de tipos sem emitir arquivos    |
+| `npm test` / `test:watch` / `test:coverage`        | Vitest                                   |
+| `npm run test:db`                                  | Testes pgTAP do banco (Docker efêmero)   |
+| `npm run e2e`                                      | Testes Playwright (a partir da Fase 4)   |
+| `supabase gen types typescript --project-id <ref>` | Gera tipos TS a partir do schema remoto  |
 
 ## Fluxo de banco de dados (decisão de 2026-11-06)
 
@@ -71,6 +71,8 @@ src/
 supabase/
   migrations/   migrations SQL (sempre aditivas)
   tests/        testes pgTAP
+  seed.sql      funções auxiliares de teste (schema `tests`); nunca vai para
+                o remoto (db push não inclui por padrão)
 docs/           documentação (setup do Supabase, restauração de backup)
 ops/            workflow de backup para copiar ao repositório privado
 .claude/skills/ uma skill por fluxo de negócio
@@ -125,8 +127,8 @@ cascade` em foreign keys de dados financeiros.
 
 ## Definição de pronto
 
-- `npm run lint`, `npm run typecheck`, `npm test` e `npm run test:db` (quando
-  houver banco) passam sem erros.
+- `npm run lint`, `npm run typecheck`, `npm test` e `npm run test:db` passam
+  sem erros.
 - Migration nova tem teste pgTAP correspondente em `supabase/tests/`.
 - Cálculo novo ou alterado em `src/lib/finance.ts`/`money.ts` tem teste em
   `finance.test.ts`/`money.test.ts`, mantendo 100% de cobertura de linhas e

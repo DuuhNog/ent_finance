@@ -56,3 +56,18 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run test:coverage
+
+  test-db:
+    name: Testes do banco (pgTAP)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: npm
+      - run: npm ci
+      # Sobe um Postgres local efêmero (via Docker), aplica as migrations e
+      # o seed de teste, roda os testes pgTAP, e descarta tudo no fim do job
+      # — nunca toca no projeto remoto.
+      - run: npx supabase test db
