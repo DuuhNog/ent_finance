@@ -61,7 +61,12 @@ Como o app vai estar na internet e o código é público, ninguém além de voc�
 
 1. Vá em **Authentication → URL Configuration**.
 2. **Site URL:** por enquanto `http://localhost:5173`. Depois do deploy, troque pelo endereço da Vercel (ex.: `https://aonde-vai-meu-dinheiro.vercel.app`).
-3. Em **Redirect URLs**, adicione os dois: `http://localhost:5173/**` e o endereço da Vercel com `/**` no final.
+3. Em **Redirect URLs**, adicione: `http://localhost:5173/**`, o endereço da
+   Vercel com `/**` no final, e — como o Vite troca de porta sozinho
+   (5174, 5175...) quando a 5173 já está ocupada por outra instância do
+   `npm run dev` — talvez precise adicionar `http://localhost:5174/**`
+   também se isso acontecer. O login por link mágico e o de recuperação de
+   senha falham silenciosamente se a porta da hora não estiver nessa lista.
 
 ## 6. Mandar as tabelas para o Supabase
 
