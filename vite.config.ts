@@ -19,10 +19,12 @@ export default defineConfig({
         'src/main.tsx',
         'src/vite-env.d.ts',
         'src/test/**',
-        'src/lib/supabase/database.types.ts',
+        'src/lib/supabase/**',
       ],
       thresholds: {
-        'src/lib/**': {
+        // Só money.ts e finance.ts (cálculos puros) precisam de 100%; o
+        // resto do app ainda está nas primeiras fases.
+        'src/lib/*.ts': {
           statements: 100,
           branches: 100,
           functions: 100,

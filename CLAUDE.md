@@ -64,10 +64,11 @@ opcionais.
 
 ```
 src/
-  lib/          cálculos puros (money.ts, finance.ts) — sem React, sem Supabase
-  components/   componentes de UI reutilizáveis
-  features/     telas e lógica por fluxo (lançamentos, metas, etc.)
-  test/         setup de testes
+  lib/           cálculos puros (money.ts, finance.ts) — sem React, sem Supabase
+  lib/supabase/  cliente do Supabase e tipos gerados (database.types.ts)
+  components/    componentes de UI reutilizáveis (ex.: ProtectedRoute)
+  features/      telas e lógica por fluxo (auth, household, lançamentos...)
+  test/          setup de testes
 supabase/
   migrations/   migrations SQL (sempre aditivas)
   tests/        testes pgTAP

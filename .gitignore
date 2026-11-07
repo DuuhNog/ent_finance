@@ -26,6 +26,9 @@ dist-ssr
 # Segredos — nunca commitar .env com valores reais
 .env*
 !.env.example
+# .env.test só tem placeholders fake, nunca lê nem toca em dados reais —
+# necessário para os testes importarem o cliente do Supabase sem rede real.
+!.env.test
 
 # Supabase local
 supabase/.temp

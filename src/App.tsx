@@ -1,16 +1,21 @@
-import { Card } from '@single-ui/react'
+import { BrowserRouter, Route, Routes } from 'react-router'
+
+import { ProtectedRoute, PublicOnlyRoute } from './components/ProtectedRoute'
+import { LoginPage } from './features/auth/LoginPage'
+import { HomePage } from './features/household/HomePage'
 
 function App() {
   return (
-    <main className="flex min-h-svh items-center justify-center bg-slate-50 p-6 text-slate-900">
-      <Card
-        title="Aonde vai o meu dinheiro"
-        bordered
-        className="max-w-md text-center"
-      >
-        Projeto em construção. As funcionalidades chegam nas próximas fases.
-      </Card>
-    </main>
+    <BrowserRouter>
+      <Routes>
+        <Route element={<PublicOnlyRoute />}>
+          <Route path="/login" element={<LoginPage />} />
+        </Route>
+        <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<HomePage />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   )
 }
 
