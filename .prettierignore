@@ -1,0 +1,10 @@
+dist
+coverage
+node_modules
+package-lock.json
+public
+
+# Documentos de referência fornecidos pelo usuário — não reformatar
+financas.html
+PROMPT.md
+SUPABASE.md
