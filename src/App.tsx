@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes } from 'react-router'
 import { AppLayout } from './components/AppLayout'
 import { ProtectedRoute, PublicOnlyRoute } from './components/ProtectedRoute'
 import { LoginPage } from './features/auth/LoginPage'
+import { UpdatePasswordPage } from './features/auth/UpdatePasswordPage'
 
 const SummaryPage = lazy(() =>
   import('./features/summary/SummaryPage').then((module) => ({
@@ -47,6 +48,7 @@ function App() {
         <Route element={<PublicOnlyRoute />}>
           <Route path="/login" element={<LoginPage />} />
         </Route>
+        <Route path="/redefinir-senha" element={<UpdatePasswordPage />} />
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
             <Route

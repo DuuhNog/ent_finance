@@ -153,6 +153,11 @@ cascade` em foreign keys de dados financeiros.
   `supabase/seed.sql` só tem funções de teste (`tests.authenticate_as`
   deixa logar como qualquer usuário), que nunca podem chegar no projeto de
   verdade.
+- Nunca chame `supabase.auth.signInWithOtp` sem `shouldCreateUser: false`.
+  O padrão da lib é `true` — sem essa opção, qualquer e-mail digitado no
+  login por link mágico cria uma conta nova, ignorando o "cadastro público
+  desativado" (o toggle "Allow signups" do painel só vale pra `/signup`,
+  não pra `/otp`). Verificado interceptando a chamada de rede de verdade.
 - Se algo neste documento ou no histórico da conversa estiver ambíguo,
   pergunte antes de assumir.
 

@@ -49,6 +49,9 @@ Como o app vai estar na internet e o código é público, ninguém além de voc�
 
 1. Vá em **Authentication → Sign In / Providers**.
 2. Desative **Allow new users to sign up**. Salve.
+   (Esse toggle protege o cadastro por senha; o login por link mágico do
+   app também passa `shouldCreateUser: false` no código, porque o toggle
+   sozinho não cobre esse caminho — veja `CLAUDE.md`.)
 3. Ainda em **Email**, confirme que o provedor de e-mail está ativo.
 4. Vá em **Authentication → Users → Add user → Create new user**.
 5. Crie o seu usuário com e-mail e uma senha forte (gerada pelo gerenciador de senhas). Marque **Auto Confirm User**.
