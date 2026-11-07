@@ -5,6 +5,7 @@ import {
   buildMonthSummary,
   estimateVariableBillAmount,
   getBillStatus,
+  getGoalProgress,
   getInstallmentDates,
   splitInstallments,
 } from './finance'
@@ -309,5 +310,39 @@ describe('buildMonthSummary', () => {
       pendingBillsTotalCents: 0,
       projectedBalanceCents: 0,
     })
+  })
+})
+
+describe('getGoalProgress', () => {
+  it.each([
+    [0, 'good'],
+    [79, 'good'],
+    [80, 'good'],
+    [81, 'warning'],
+    [100, 'warning'],
+    [101, 'critical'],
+    [150, 'critical'],
+  ])('limit goal at %i%% is %s', (percent, expectedLevel) => {
+    const result = getGoalProgress(percent, 100, false)
+
+    expect(result.level).toBe(expectedLevel)
+    expect(result.percentage).toBeCloseTo(percent / 100)
+  })
+
+  it.each([
+    [0, 'critical'],
+    [49, 'critical'],
+    [50, 'warning'],
+    [99, 'warning'],
+    [100, 'good'],
+    [150, 'good'],
+  ])('savings goal (inverse) at %i%% is %s', (percent, expectedLevel) => {
+    const result = getGoalProgress(percent, 100, true)
+
+    expect(result.level).toBe(expectedLevel)
+  })
+
+  it('returns 0% when the target is zero', () => {
+    expect(getGoalProgress(500, 0, false).percentage).toBe(0)
   })
 })

@@ -12,12 +12,15 @@ velocidade de entrega.
 
 - Vite + React + TypeScript (`strict: true`, `noUncheckedIndexedAccess: true`)
 - React Router, TanStack Query, Zod, Tailwind CSS (layout/utilitário), Recharts
-- `@single-ui/react` para componentes de UI (Button, Input com máscara `brl`,
-  Card, Select, DatePicker, Modal, Toast, etc.) — **não crie componentes de UI
-  na mão** quando já existir um componente equivalente na lib; importe o
-  CSS dela uma vez em `src/main.tsx` (`@single-ui/react/styles`)
+- `@single-ui/react` para componentes de UI (Button, Input, Card, Select,
+  DatePicker, Modal, Checkbox etc.) — **não crie componentes de UI na mão**
+  quando já existir um componente equivalente na lib; importe o CSS dela uma
+  vez em `src/main.tsx` (`@single-ui/react/styles`). O `Input`/`Select` da
+  lib não associam `label` ao campo via `for`/`id` (bug conhecido) — sempre
+  passe `aria-label` também, redundante com `label`.
 - `@supabase/supabase-js` no navegador, sempre com a **publishable key**
-- `vite-plugin-pwa`
+- `vite-plugin-pwa` (manifest + service worker só cacheiam o app shell —
+  nunca chamadas ao Supabase)
 - Supabase CLI para migrations e tipos, direto contra o projeto remoto (sem
   banco local de desenvolvimento — veja "Fluxo de banco de dados" abaixo)
 - Vitest + Testing Library + fast-check, pgTAP, Playwright
@@ -34,7 +37,7 @@ velocidade de entrega.
 | `npm run typecheck`                            | Checagem de tipos sem emitir arquivos    |
 | `npm test` / `test:watch` / `test:coverage`    | Vitest                                   |
 | `npm run test:db`                              | Testes pgTAP do banco (Docker efêmero)   |
-| `npm run e2e`                                  | Testes Playwright (a partir da Fase 4)   |
+| `npm run e2e`                                  | Testes Playwright (pendente — veja nota) |
 | `supabase gen types typescript --remote=<ref>` | Gera tipos TS a partir do schema remoto  |
 
 ## Fluxo de banco de dados (decisão de 2026-11-06)
@@ -43,8 +46,10 @@ Este projeto **não mantém um banco local de desenvolvimento**. Não existe
 `supabase start` nem um stack local persistente. O fluxo é:
 
 1. Migrations são escritas em `supabase/migrations/` normalmente.
-2. `npm run test:db` (`supabase test db`) roda os testes pgTAP contra um
-   Postgres **efêmero via Docker**, só para a duração do teste — não é um
+2. `npm run test:db` sobe o Postgres local (`supabase start`), roda os
+   testes pgTAP e derruba tudo de novo (`supabase stop`) — `supabase test
+db` sozinho **não** sobe o stack, por isso o script já embrulha os três
+   passos. É **efêmero via Docker**, só para a duração do teste — não é um
    banco de desenvolvimento, não guarda dados entre execuções e não é o
    projeto remoto. Docker é usado só para isso.
 3. Depois que os testes pgTAP passam, as migrations vão direto para o projeto
@@ -60,24 +65,45 @@ toda migration aplicada via `db push` vai direto para os dados reais — por
 isso os testes pgTAP (passo 2) e a revisão da migration antes do push não são
 opcionais.
 
+## Pendência: testes e2e (decisão de 2026-11-07)
+
+`@playwright/test` está instalado, mas **a infraestrutura de execução ainda
+não existe** (nenhum `playwright.config.ts`, nenhum spec). O PROMPT.md pedia
+e2e "contra o Supabase local", só que decidimos não manter banco local. Login
+de verdade passa pelo GoTrue de verdade (precisa de senha real — o truque de
+`tests.authenticate_as` do pgTAP não serve, ele nem passa pelo GoTrue).
+
+Quando for implementar: suba um Supabase local **efêmero** só para a suíte
+(igual ao pgTAP), com usuários de teste de senha real (hash bcrypt), e derrube
+tudo no final. Nunca teste contra o projeto remoto (precisaria de credenciais
+de teste como segredo do CI num repositório público). Cenários a cobrir:
+login, lançar gasto, parcelar no cartão, pagar conta variável, excluir e
+restaurar da lixeira, segundo usuário da mesma casa vê o lançamento.
+
 ## Estrutura de pastas
 
 ```
 src/
-  lib/           cálculos puros (money.ts, finance.ts) — sem React, sem Supabase
-  lib/supabase/  cliente do Supabase e tipos gerados (database.types.ts)
-  components/    componentes de UI reutilizáveis (ex.: ProtectedRoute)
-  features/      telas e lógica por fluxo (auth, household, lançamentos...)
-  test/          setup de testes
+  lib/            cálculos puros (money.ts, finance.ts) — sem React, sem Supabase
+  lib/supabase/   cliente do Supabase e tipos gerados (database.types.ts)
+  components/     componentes de UI reutilizáveis (ex.: AppLayout, ProtectedRoute)
+  features/       telas e lógica por fluxo: auth, household, categories,
+                  transactions, recurringBills, goals, summary, backup, settings
+  test/           setup de testes
+scripts/          scripts Node (ex.: import-backup.ts)
 supabase/
-  migrations/   migrations SQL (sempre aditivas)
-  tests/        testes pgTAP
-  seed.sql      funções auxiliares de teste (schema `tests`); nunca vai para
-                o remoto (db push não inclui por padrão)
-docs/           documentação (setup do Supabase, restauração de backup)
-ops/            workflow de backup para copiar ao repositório privado
-.claude/skills/ uma skill por fluxo de negócio
+  migrations/     migrations SQL (sempre aditivas)
+  tests/          testes pgTAP
+  seed.sql        funções auxiliares de teste (schema `tests`); nunca vai para
+                  o remoto (db push não inclui por padrão)
+docs/             documentação (setup do Supabase, deploy, restauração)
+ops/              workflow de backup para copiar ao repositório privado
+.claude/skills/   uma skill por fluxo de negócio
 ```
+
+Rotas (todas dentro de `<AppLayout>`, exceto `/login`): `/` (resumo),
+`/lancamentos`, `/contas` (recorrentes), `/metas`, `/ajustes` (perfil,
+backup, categorias), `/lixeira`.
 
 ## Glossário de domínio
 

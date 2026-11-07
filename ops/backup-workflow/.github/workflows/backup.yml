@@ -1,0 +1,55 @@
+name: Backup diário do Supabase
+
+on:
+  schedule:
+    # 06:00 UTC = 03:00 em São Paulo (sem horário de verão desde 2019).
+    - cron: '0 6 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Data de hoje
+        id: date
+        run: echo "value=$(date +%F)" >> "$GITHUB_OUTPUT"
+
+      - name: Instalar pg_dump (Postgres 17) e age
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget gnupg lsb-release
+          wget -q -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /usr/share/keyrings/postgresql.gpg
+          echo "deb [signed-by=/usr/share/keyrings/postgresql.gpg] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-17 age
+
+      - name: Gerar o dump do banco
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          # Só os schemas da aplicação (public + private) — os schemas do
+          # próprio Supabase (auth, storage, realtime, ...) já existem em
+          # qualquer projeto novo e não devem ser sobrescritos na restauração.
+          pg_dump "$SUPABASE_DB_URL" \
+            --no-owner --no-privileges --format=plain \
+            --schema=public --schema=private \
+            -f backup.sql
+
+      - name: Comprimir e criptografar
+        env:
+          AGE_PUBLIC_KEY: ${{ secrets.AGE_PUBLIC_KEY }}
+        run: |
+          gzip backup.sql
+          age -r "$AGE_PUBLIC_KEY" -o "supabase-backup-${{ steps.date.outputs.value }}.sql.gz.age" backup.sql.gz
+          rm -f backup.sql.gz
+
+      - name: Guardar como artifact (retenção de 90 dias)
+        uses: actions/upload-artifact@v4
+        with:
+          name: supabase-backup-${{ steps.date.outputs.value }}
+          path: supabase-backup-*.sql.gz.age
+          retention-days: 90
+          if-no-files-found: error

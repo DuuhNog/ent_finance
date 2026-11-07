@@ -272,3 +272,35 @@ export function buildMonthSummary(input: MonthSummaryInput): MonthSummary {
     projectedBalanceCents: balanceCents - pendingBillsTotalCents,
   }
 }
+
+export type GoalProgressLevel = 'good' | 'warning' | 'critical'
+
+export interface GoalProgress {
+  /** 1 = 100% da meta. */
+  percentage: number
+  level: GoalProgressLevel
+}
+
+/**
+ * Progresso de uma meta. Para limite (cartão/categoria), mais é pior: até
+ * 80% é `good`, até 100% é `warning`, acima é `critical`. Para guardar
+ * (`inverse`), mais é melhor: 100% ou mais é `good`, 50% a 100% é `warning`,
+ * abaixo de 50% é `critical`.
+ */
+export function getGoalProgress(
+  currentCents: number,
+  targetCents: number,
+  inverse: boolean,
+): GoalProgress {
+  const percentage = targetCents > 0 ? currentCents / targetCents : 0
+
+  if (inverse) {
+    const level: GoalProgressLevel =
+      percentage >= 1 ? 'good' : percentage >= 0.5 ? 'warning' : 'critical'
+    return { percentage, level }
+  }
+
+  const level: GoalProgressLevel =
+    percentage <= 0.8 ? 'good' : percentage <= 1 ? 'warning' : 'critical'
+  return { percentage, level }
+}
