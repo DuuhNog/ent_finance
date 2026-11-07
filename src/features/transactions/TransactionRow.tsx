@@ -15,6 +15,7 @@ export function TransactionRow({
   author: Profile | undefined
 }) {
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
   const softDelete = useSoftDeleteTransaction()
 
   const label = transaction.description ?? category?.name ?? 'Lançamento'
@@ -48,6 +49,9 @@ export function TransactionRow({
           ) : null}
           {author ? <span>· lançado por {author.display_name}</span> : null}
         </p>
+        {deleteError ? (
+          <p className="mt-1 text-xs text-red-600">{deleteError}</p>
+        ) : null}
       </div>
       <span
         className={`shrink-0 font-semibold ${isIncome ? 'text-emerald-700' : 'text-slate-900'}`}
@@ -64,7 +68,13 @@ export function TransactionRow({
             setIsConfirmingDelete(true)
             return
           }
-          softDelete.mutate(transaction.id)
+          setDeleteError(null)
+          softDelete.mutate(transaction.id, {
+            onError: () => {
+              setIsConfirmingDelete(false)
+              setDeleteError('Não foi possível excluir. Tente de novo.')
+            },
+          })
         }}
       >
         {isConfirmingDelete ? 'Confirmar' : 'Excluir'}

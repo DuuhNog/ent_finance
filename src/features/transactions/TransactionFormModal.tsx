@@ -82,10 +82,6 @@ export function TransactionFormModal({ onClose }: { onClose: () => void }) {
       return
     }
 
-    if (!creditCardHint.hasSeen && paymentMethod === 'credit_card') {
-      creditCardHint.markSeen()
-    }
-
     try {
       if (
         kind === 'expense' &&
@@ -109,6 +105,12 @@ export function TransactionFormModal({ onClose }: { onClose: () => void }) {
             kind === 'expense' ? (paymentMethod as PaymentMethod) : null,
           description: description.trim() === '' ? null : description.trim(),
         })
+      }
+      // Só marca o aviso do cartão como visto depois que o lançamento foi
+      // salvo de verdade — se a primeira tentativa falhar, o usuário ainda
+      // não viu o aviso surtir efeito e deve continuar vendo-o.
+      if (!creditCardHint.hasSeen && paymentMethod === 'credit_card') {
+        creditCardHint.markSeen()
       }
       onClose()
     } catch {

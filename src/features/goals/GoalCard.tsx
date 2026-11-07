@@ -1,22 +1,14 @@
 import { Button, Input } from '@single-ui/react'
 import { useState } from 'react'
 
+import {
+  goalProgressBarColorClass,
+  goalProgressTextColorClass,
+} from '../../lib/chartColors'
 import { getGoalProgress } from '../../lib/finance'
 import { formatMoney, formatMoneyInput, parseMoney } from '../../lib/money'
 import type { Category, Goal } from '../../lib/supabase/types'
 import { useArchiveGoal, useUpdateGoalAmount } from './useGoals'
-
-function progressBarColor(level: 'good' | 'warning' | 'critical'): string {
-  if (level === 'good') return 'bg-emerald-600'
-  if (level === 'warning') return 'bg-amber-500'
-  return 'bg-rose-600'
-}
-
-function progressTextColor(level: 'good' | 'warning' | 'critical'): string {
-  if (level === 'good') return 'text-emerald-700'
-  if (level === 'warning') return 'text-amber-700'
-  return 'text-rose-700'
-}
 
 function goalTitle(goal: Goal, category: Category | undefined): string {
   if (goal.kind === 'credit_card_limit') return 'Limite no cartão de crédito'
@@ -99,7 +91,7 @@ export function GoalCard({
         className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100"
       >
         <div
-          className={`h-full ${progressBarColor(progress.level)}`}
+          className={`h-full ${goalProgressBarColorClass(progress.level)}`}
           style={{
             width: `${String(Math.min(100, progress.percentage * 100))}%`,
           }}
@@ -107,7 +99,7 @@ export function GoalCard({
       </div>
 
       <p
-        className={`mt-2 text-sm font-medium ${progressTextColor(progress.level)}`}
+        className={`mt-2 text-sm font-medium ${goalProgressTextColorClass(progress.level)}`}
       >
         {inverse
           ? currentCents >= goal.amount_cents

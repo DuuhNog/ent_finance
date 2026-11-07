@@ -1,6 +1,7 @@
 import { Button } from '@single-ui/react'
 import { useMemo, useState } from 'react'
 
+import { estimateVariableBillAmount } from '../../lib/finance'
 import { formatMoney } from '../../lib/money'
 import { useCategories } from '../categories/useCategories'
 import { MonthSwitcher } from '../month/MonthSwitcher'
@@ -54,7 +55,11 @@ export function RecurringBillsPage() {
     return map
   }, [historyQuery.data])
 
-  const bills = billsQuery.data ?? []
+  // Uma conta não existe antes do mês em que foi cadastrada — sem isso,
+  // navegar para um mês anterior ao cadastro mostra a conta como "atrasada".
+  const bills = (billsQuery.data ?? []).filter(
+    (bill) => bill.start_month <= competenceMonth,
+  )
   const paidCount = bills.filter((bill) => paymentsByBillId.has(bill.id)).length
   const paidTotalCents = bills.reduce(
     (sum, bill) => sum + (paymentsByBillId.get(bill.id)?.amount_cents ?? 0),
@@ -62,7 +67,11 @@ export function RecurringBillsPage() {
   )
   const pendingTotalCents = bills.reduce((sum, bill) => {
     if (paymentsByBillId.has(bill.id)) return sum
-    return sum + bill.amount_cents
+    const history = historyByBillId.get(bill.id) ?? []
+    const estimatedAmountCents = bill.is_variable
+      ? estimateVariableBillAmount(history, competenceMonth, bill.amount_cents)
+      : bill.amount_cents
+    return sum + estimatedAmountCents
   }, 0)
 
   return (
@@ -99,7 +108,10 @@ export function RecurringBillsPage() {
       <ul>
         {bills.map((bill) => (
           <RecurringBillRow
-            key={bill.id}
+            // Inclui o mês na key: o valor sugerido/digitado é estado local
+            // (useState) que não re-sincroniza sozinho ao trocar de mês via
+            // MonthSwitcher — remontar o componente garante o valor certo.
+            key={`${bill.id}-${competenceMonth}`}
             bill={bill}
             category={categoriesById.get(bill.category_id)}
             competenceMonth={competenceMonth}

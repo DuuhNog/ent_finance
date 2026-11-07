@@ -1,5 +1,6 @@
 import { Card } from '@single-ui/react'
 
+import { goalProgressBarColorClass } from '../../lib/chartColors'
 import { getGoalProgress } from '../../lib/finance'
 import { formatMoney } from '../../lib/money'
 import { useGoals } from '../goals/useGoals'
@@ -11,12 +12,6 @@ import { PaymentMethodBreakdown } from './PaymentMethodBreakdown'
 import { useLastSixMonths } from './useLastSixMonths'
 import { useMonthSummary } from './useMonthSummary'
 
-function progressBarColor(level: 'good' | 'warning' | 'critical'): string {
-  if (level === 'good') return 'bg-emerald-600'
-  if (level === 'warning') return 'bg-amber-500'
-  return 'bg-rose-600'
-}
-
 export function SummaryPage() {
   const { competenceMonth } = useSelectedMonth()
   const summaryQuery = useMonthSummary(competenceMonth)
@@ -26,6 +21,14 @@ export function SummaryPage() {
   const creditCardGoal = goalsQuery.data?.find(
     (goal) => goal.kind === 'credit_card_limit',
   )
+  const creditCardProgress =
+    creditCardGoal && summaryQuery.data
+      ? getGoalProgress(
+          summaryQuery.data.creditCardTotalCents,
+          creditCardGoal.amount_cents,
+          false,
+        )
+      : null
 
   return (
     <div className="flex flex-col gap-4">
@@ -78,35 +81,24 @@ export function SummaryPage() {
             </div>
           </Card>
 
-          {creditCardGoal ? (
+          {creditCardGoal && creditCardProgress ? (
             <Card title="Cartão de crédito" bordered>
-              {(() => {
-                const progress = getGoalProgress(
-                  summaryQuery.data.creditCardTotalCents,
-                  creditCardGoal.amount_cents,
-                  false,
-                )
-                return (
-                  <>
-                    <p className="text-sm text-slate-600">
-                      {formatMoney(summaryQuery.data.creditCardTotalCents)} de{' '}
-                      {formatMoney(creditCardGoal.amount_cents)}
-                    </p>
-                    <div
-                      role="img"
-                      aria-label={`${String(Math.round(progress.percentage * 100))}% do limite`}
-                      className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100"
-                    >
-                      <div
-                        className={`h-full ${progressBarColor(progress.level)}`}
-                        style={{
-                          width: `${String(Math.min(100, progress.percentage * 100))}%`,
-                        }}
-                      />
-                    </div>
-                  </>
-                )
-              })()}
+              <p className="text-sm text-slate-600">
+                {formatMoney(summaryQuery.data.creditCardTotalCents)} de{' '}
+                {formatMoney(creditCardGoal.amount_cents)}
+              </p>
+              <div
+                role="img"
+                aria-label={`${String(Math.round(creditCardProgress.percentage * 100))}% do limite`}
+                className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100"
+              >
+                <div
+                  className={`h-full ${goalProgressBarColorClass(creditCardProgress.level)}`}
+                  style={{
+                    width: `${String(Math.min(100, creditCardProgress.percentage * 100))}%`,
+                  }}
+                />
+              </div>
             </Card>
           ) : null}
 

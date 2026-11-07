@@ -13,6 +13,7 @@ import {
 function CategoryRow({ category }: { category: Category }) {
   const [isEditing, setIsEditing] = useState(false)
   const [name, setName] = useState(category.name)
+  const [archiveError, setArchiveError] = useState<string | null>(null)
   const rename = useRenameCategory()
   const archive = useArchiveCategory()
 
@@ -54,6 +55,9 @@ function CategoryRow({ category }: { category: Category }) {
                 guardar
               </span>
             ) : null}
+            {archiveError ? (
+              <span className="block text-xs text-red-600">{archiveError}</span>
+            ) : null}
           </span>
           <Button
             variant="secondary"
@@ -69,7 +73,12 @@ function CategoryRow({ category }: { category: Category }) {
             size="sm"
             loading={archive.isPending}
             onClick={() => {
-              archive.mutate(category.id)
+              setArchiveError(null)
+              archive.mutate(category.id, {
+                onError: () => {
+                  setArchiveError('Não foi possível arquivar. Tente de novo.')
+                },
+              })
             }}
           >
             Arquivar

@@ -1,3 +1,4 @@
+import type { GoalProgressLevel } from './finance'
 import type { PaymentMethod } from './supabase/types'
 
 /**
@@ -29,3 +30,21 @@ export const STATUS_COLORS = {
  * identidade está no rótulo, não na cor, então uma série só evita gastar
  * a paleta categórica à toa. */
 export const RANKED_BAR_COLOR = '#2a78d6'
+
+/**
+ * Classes Tailwind para a barra/texto de progresso de uma meta
+ * (`getGoalProgress` em `finance.ts`). Usado tanto em `GoalCard` quanto em
+ * `SummaryPage` — mantenha uma única fonte para não divergir entre as duas
+ * telas.
+ */
+export function goalProgressBarColorClass(level: GoalProgressLevel): string {
+  if (level === 'good') return 'bg-emerald-600'
+  if (level === 'warning') return 'bg-amber-500'
+  return 'bg-rose-600'
+}
+
+export function goalProgressTextColorClass(level: GoalProgressLevel): string {
+  if (level === 'good') return 'text-emerald-700'
+  if (level === 'warning') return 'text-amber-700'
+  return 'text-rose-700'
+}

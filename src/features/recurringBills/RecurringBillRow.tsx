@@ -59,6 +59,7 @@ export function RecurringBillRow({
     formatMoneyInput(suggestedAmountCents),
   )
   const [amountError, setAmountError] = useState<string | null>(null)
+  const [undoError, setUndoError] = useState<string | null>(null)
   const payBill = usePayRecurringBill()
   const undoPayment = useSoftDeleteTransaction()
 
@@ -69,7 +70,14 @@ export function RecurringBillRow({
       return
     }
     setAmountError(null)
-    payBill.mutate({ billId: bill.id, month: competenceMonth, amountCents })
+    payBill.mutate(
+      { billId: bill.id, month: competenceMonth, amountCents },
+      {
+        onError: () => {
+          setAmountError('Não foi possível pagar a conta. Tente de novo.')
+        },
+      },
+    )
   }
 
   return (
@@ -98,20 +106,30 @@ export function RecurringBillRow({
         </div>
 
         {status === 'paid' && payment ? (
-          <div className="flex shrink-0 items-center gap-2">
-            <span className="font-semibold text-slate-900">
-              {formatMoney(payment.amount_cents)}
-            </span>
-            <Button
-              variant="secondary"
-              size="sm"
-              loading={undoPayment.isPending}
-              onClick={() => {
-                undoPayment.mutate(payment.id)
-              }}
-            >
-              Desfazer
-            </Button>
+          <div className="flex shrink-0 flex-col items-end gap-1">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-slate-900">
+                {formatMoney(payment.amount_cents)}
+              </span>
+              <Button
+                variant="secondary"
+                size="sm"
+                loading={undoPayment.isPending}
+                onClick={() => {
+                  setUndoError(null)
+                  undoPayment.mutate(payment.id, {
+                    onError: () => {
+                      setUndoError('Não foi possível desfazer. Tente de novo.')
+                    },
+                  })
+                }}
+              >
+                Desfazer
+              </Button>
+            </div>
+            {undoError ? (
+              <p className="text-xs text-red-600">{undoError}</p>
+            ) : null}
           </div>
         ) : (
           <div className="flex shrink-0 items-center gap-2">

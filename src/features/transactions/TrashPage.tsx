@@ -1,18 +1,62 @@
 import { Button } from '@single-ui/react'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 
 import { isoDateToDate } from '../../lib/isoDate'
 import { formatMoney } from '../../lib/money'
+import type { Category, Transaction } from '../../lib/supabase/types'
 import { useCategories } from '../categories/useCategories'
 import {
   useDeletedTransactions,
   useRestoreTransaction,
 } from './useTransactions'
 
+function TrashRow({
+  transaction,
+  category,
+}: {
+  transaction: Transaction
+  category: Category | undefined
+}) {
+  const restore = useRestoreTransaction()
+  const [error, setError] = useState<string | null>(null)
+
+  return (
+    <li className="flex items-center gap-3 border-b border-slate-100 py-3 last:border-0">
+      <div className="min-w-0 flex-1">
+        <p className="truncate font-medium text-slate-900">
+          {transaction.description ?? category?.name ?? 'Lançamento'}
+        </p>
+        <p className="text-xs text-slate-500">
+          {category?.name ?? 'Sem categoria'} ·{' '}
+          {isoDateToDate(transaction.occurred_on).toLocaleDateString('pt-BR')}
+        </p>
+        {error ? <p className="text-xs text-red-600">{error}</p> : null}
+      </div>
+      <span className="shrink-0 font-semibold text-slate-900">
+        {formatMoney(transaction.amount_cents)}
+      </span>
+      <Button
+        variant="secondary"
+        size="sm"
+        loading={restore.isPending}
+        onClick={() => {
+          setError(null)
+          restore.mutate(transaction.id, {
+            onError: () => {
+              setError('Não foi possível restaurar. Tente de novo.')
+            },
+          })
+        }}
+      >
+        Restaurar
+      </Button>
+    </li>
+  )
+}
+
 export function TrashPage() {
   const deletedQuery = useDeletedTransactions()
   const categoriesQuery = useCategories()
-  const restore = useRestoreTransaction()
 
   const categoriesById = useMemo(
     () =>
@@ -41,40 +85,13 @@ export function TrashPage() {
       ) : null}
 
       <ul>
-        {(deletedQuery.data ?? []).map((transaction) => {
-          const category = categoriesById.get(transaction.category_id)
-          return (
-            <li
-              key={transaction.id}
-              className="flex items-center gap-3 border-b border-slate-100 py-3 last:border-0"
-            >
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-medium text-slate-900">
-                  {transaction.description ?? category?.name ?? 'Lançamento'}
-                </p>
-                <p className="text-xs text-slate-500">
-                  {category?.name ?? 'Sem categoria'} ·{' '}
-                  {isoDateToDate(transaction.occurred_on).toLocaleDateString(
-                    'pt-BR',
-                  )}
-                </p>
-              </div>
-              <span className="shrink-0 font-semibold text-slate-900">
-                {formatMoney(transaction.amount_cents)}
-              </span>
-              <Button
-                variant="secondary"
-                size="sm"
-                loading={restore.isPending}
-                onClick={() => {
-                  restore.mutate(transaction.id)
-                }}
-              >
-                Restaurar
-              </Button>
-            </li>
-          )
-        })}
+        {(deletedQuery.data ?? []).map((transaction) => (
+          <TrashRow
+            key={transaction.id}
+            transaction={transaction}
+            category={categoriesById.get(transaction.category_id)}
+          />
+        ))}
       </ul>
     </div>
   )

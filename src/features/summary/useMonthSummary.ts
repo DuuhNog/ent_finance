@@ -64,6 +64,10 @@ export function useMonthSummary(competenceMonth: string) {
 
     const pendingBills = billsQuery.data
       .filter((bill) => !paidBillIds.has(bill.id))
+      // Uma conta cadastrada neste mês ou depois ainda não existia nos
+      // meses anteriores — sem isso, navegar para um mês antes do cadastro
+      // mostra a conta como atrasada.
+      .filter((bill) => bill.start_month <= competenceMonth)
       .filter((bill) => {
         const status = getBillStatus({
           dueDate: dueDateForCompetenceMonth(competenceMonth, bill.due_day),

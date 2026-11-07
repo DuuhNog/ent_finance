@@ -66,7 +66,16 @@ export function AppLayout() {
         </header>
 
         <main className="mx-auto max-w-2xl px-4 py-4">
-          <Outlet />
+          {profileQuery.isPending || householdQuery.isPending ? (
+            <p className="text-slate-600">Carregando...</p>
+          ) : profileQuery.isError || householdQuery.isError ? (
+            <p className="text-red-600">
+              Não foi possível carregar os dados da casa. Tente novamente mais
+              tarde.
+            </p>
+          ) : (
+            <Outlet />
+          )}
         </main>
 
         <Button
