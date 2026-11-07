@@ -7,6 +7,7 @@ import {
   getBillStatus,
   getGoalProgress,
   getInstallmentDates,
+  getResumedInstallmentDates,
   splitInstallments,
 } from './finance'
 
@@ -86,6 +87,69 @@ describe('getInstallmentDates', () => {
   it('throws for installments outside 2..24', () => {
     expect(() => getInstallmentDates('2024-01-31', 1)).toThrow(RangeError)
     expect(() => getInstallmentDates('2024-01-31', 25)).toThrow(RangeError)
+  })
+})
+
+describe('getResumedInstallmentDates', () => {
+  it('returns one date per remaining installment, starting at the given date', () => {
+    expect(getResumedInstallmentDates('2026-11-06', 5, 10)).toEqual([
+      '2026-11-06',
+      '2026-12-06',
+      '2027-01-06',
+      '2027-02-06',
+      '2027-03-06',
+      '2027-04-06',
+    ])
+  })
+
+  it('returns a single date when resuming at the last installment', () => {
+    expect(getResumedInstallmentDates('2026-11-04', 4, 4)).toEqual([
+      '2026-11-04',
+    ])
+  })
+
+  it('keeps the last day of february on a non-leap year', () => {
+    expect(getResumedInstallmentDates('2023-01-31', 2, 3)).toEqual([
+      '2023-01-31',
+      '2023-02-28',
+    ])
+  })
+
+  it('throws when totalInstallments is outside 2..24', () => {
+    expect(() => getResumedInstallmentDates('2024-01-31', 2, 1)).toThrow(
+      RangeError,
+    )
+    expect(() => getResumedInstallmentDates('2024-01-31', 2, 25)).toThrow(
+      RangeError,
+    )
+  })
+
+  it('throws when startInstallment is below 2 or above totalInstallments', () => {
+    expect(() => getResumedInstallmentDates('2024-01-31', 1, 10)).toThrow(
+      RangeError,
+    )
+    expect(() => getResumedInstallmentDates('2024-01-31', 11, 10)).toThrow(
+      RangeError,
+    )
+    expect(() => getResumedInstallmentDates('2024-01-31', 2.5, 10)).toThrow(
+      RangeError,
+    )
+  })
+
+  it('property: date count always equals totalInstallments - startInstallment + 1', () => {
+    fc.assert(
+      fc.property(
+        fc.integer({ min: 2, max: 24 }),
+        fc.integer({ min: 2, max: 24 }),
+        (a, b) => {
+          const total = Math.max(a, b)
+          const start = Math.min(a, b)
+          const dates = getResumedInstallmentDates('2026-05-15', start, total)
+          expect(dates).toHaveLength(total - start + 1)
+          expect(dates[0]).toBe('2026-05-15')
+        },
+      ),
+    )
   })
 })
 

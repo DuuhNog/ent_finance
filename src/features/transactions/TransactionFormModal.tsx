@@ -10,12 +10,21 @@ import { useCategories } from '../categories/useCategories'
 import {
   useCreateInstallmentPurchase,
   useCreateTransaction,
+  useResumeInstallmentPurchase,
 } from './useTransactions'
 import { useCreditCardHint } from './useCreditCardHint'
 
 const INSTALLMENT_OPTIONS = Array.from({ length: 24 }, (_, index) => ({
   value: index + 1,
   label: index === 0 ? 'À vista' : `${String(index + 1)}x`,
+}))
+
+// "Retomar parcelamento" é para compras parceladas que começaram antes de
+// usar o app — por isso nunca começa em 1 (a parcela 1 sempre entra pelo
+// fluxo normal, que divide o total certinho).
+const TOTAL_INSTALLMENT_OPTIONS = Array.from({ length: 23 }, (_, index) => ({
+  value: index + 2,
+  label: `${String(index + 2)}x`,
 }))
 
 export function TransactionFormModal({ onClose }: { onClose: () => void }) {
@@ -26,16 +35,21 @@ export function TransactionFormModal({ onClose }: { onClose: () => void }) {
   const [occurredOn, setOccurredOn] = useState<Date | null>(new Date())
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | ''>('')
   const [installments, setInstallments] = useState(1)
+  const [isResuming, setIsResuming] = useState(false)
+  const [startInstallment, setStartInstallment] = useState(2)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [formError, setFormError] = useState<string | null>(null)
 
   const categoriesQuery = useCategories(kind)
   const createTransaction = useCreateTransaction()
   const createInstallmentPurchase = useCreateInstallmentPurchase()
+  const resumeInstallmentPurchase = useResumeInstallmentPurchase()
   const creditCardHint = useCreditCardHint()
 
   const isSubmitting =
-    createTransaction.isPending || createInstallmentPurchase.isPending
+    createTransaction.isPending ||
+    createInstallmentPurchase.isPending ||
+    resumeInstallmentPurchase.isPending
 
   // A categoria e a forma de pagamento escolhidas podem não fazer mais
   // sentido ao trocar entre gasto e entrada — reseta tudo junto na troca.
@@ -44,12 +58,29 @@ export function TransactionFormModal({ onClose }: { onClose: () => void }) {
     setCategoryId('')
     setPaymentMethod('')
     setInstallments(1)
+    setIsResuming(false)
+    setStartInstallment(2)
   }
 
   function handlePaymentMethodChange(value: PaymentMethod | '') {
     setPaymentMethod(value)
     if (value !== 'credit_card') {
       setInstallments(1)
+      setIsResuming(false)
+      setStartInstallment(2)
+    }
+  }
+
+  function handleIsResumingChange(value: boolean) {
+    setIsResuming(value)
+    setInstallments(value ? 2 : 1)
+    setStartInstallment(2)
+  }
+
+  function handleTotalInstallmentsChange(value: number) {
+    setInstallments(value)
+    if (isResuming && startInstallment > value) {
+      setStartInstallment(value)
     }
   }
 
@@ -83,7 +114,16 @@ export function TransactionFormModal({ onClose }: { onClose: () => void }) {
     }
 
     try {
-      if (
+      if (kind === 'expense' && paymentMethod === 'credit_card' && isResuming) {
+        await resumeInstallmentPurchase.mutateAsync({
+          categoryId,
+          installmentAmountCents: amountCents,
+          startInstallment,
+          totalInstallments: installments,
+          firstOccurredOn: dateToIsoDate(occurredOn),
+          description: description.trim() === '' ? null : description.trim(),
+        })
+      } else if (
         kind === 'expense' &&
         paymentMethod === 'credit_card' &&
         installments > 1
@@ -147,8 +187,8 @@ export function TransactionFormModal({ onClose }: { onClose: () => void }) {
         </div>
 
         <Input
-          label="Valor (R$)"
-          aria-label="Valor (R$)"
+          label={isResuming ? 'Valor desta parcela (R$)' : 'Valor (R$)'}
+          aria-label={isResuming ? 'Valor desta parcela (R$)' : 'Valor (R$)'}
           inputMode="numeric"
           placeholder="0,00"
           value={amountInput}
@@ -228,6 +268,51 @@ export function TransactionFormModal({ onClose }: { onClose: () => void }) {
             ) : null}
 
             {paymentMethod === 'credit_card' ? (
+              <label className="flex items-center gap-2 text-sm text-stone-300">
+                <input
+                  type="checkbox"
+                  checked={isResuming}
+                  onChange={(event) => {
+                    handleIsResumingChange(event.target.checked)
+                  }}
+                />
+                Compra parcelada que já começou antes de usar o app
+              </label>
+            ) : null}
+
+            {paymentMethod === 'credit_card' && isResuming ? (
+              <div className="flex gap-2">
+                <Select
+                  label="Esta é a parcela"
+                  aria-label="Esta é a parcela"
+                  options={TOTAL_INSTALLMENT_OPTIONS.filter(
+                    (option) => option.value <= installments,
+                  ).map((option) => ({
+                    value: option.value,
+                    label: String(option.value),
+                  }))}
+                  value={startInstallment}
+                  onChange={(value) => {
+                    setStartInstallment(typeof value === 'number' ? value : 2)
+                  }}
+                  fullWidth
+                />
+                <Select
+                  label="De quantas no total"
+                  aria-label="De quantas no total"
+                  options={TOTAL_INSTALLMENT_OPTIONS}
+                  value={installments}
+                  onChange={(value) => {
+                    handleTotalInstallmentsChange(
+                      typeof value === 'number' ? value : 2,
+                    )
+                  }}
+                  fullWidth
+                />
+              </div>
+            ) : null}
+
+            {paymentMethod === 'credit_card' && !isResuming ? (
               <Select
                 label="Parcelas"
                 aria-label="Parcelas"

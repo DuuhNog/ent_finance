@@ -1,6 +1,6 @@
 ---
 name: parcelamento-cartao
-description: Use ao mexer em compra parcelada no cartão de crédito, na RPC create_installment_purchase, na divisão de centavos entre parcelas, ou nas datas de vencimento das parcelas (fim de mês).
+description: Use ao mexer em compra parcelada no cartão de crédito, nas RPCs create_installment_purchase/resume_installment_purchase, na divisão de centavos entre parcelas, em retomar um parcelamento que já começou antes do app, ou nas datas de vencimento das parcelas (fim de mês).
 ---
 
 ## Objetivo
@@ -20,25 +20,43 @@ centavos, o cálculo das datas e a RPC que faz tudo isso no Postgres.
   compartilham `installment_group_id`, têm `installment_number`/
   `installment_total`. Criar as parcelas é atômico — uma função RPC, numa
   única transação; se um parâmetro for inválido, **nada** é criado.
+- Regra 6 (decisão de 2026-11-07): compra parcelada que **começou antes de
+  usar o app** não entra pelo fluxo normal (não dá pra saber o valor total
+  nem a data da primeira parcela). Em vez disso, "retomar parcelamento"
+  cria só as parcelas **restantes** (de `startInstallment` até
+  `totalInstallments`), todas com o **mesmo valor** — o valor desta parcela
+  que já está na fatura, não um total a dividir. Só faz sentido para
+  `startInstallment >= 2` (a parcela 1 sempre entra pelo fluxo normal
+  acima, que divide o total certinho).
 
 ## Arquivos envolvidos
 
-- `src/lib/finance.ts` — `splitInstallments` (divisão de centavos) e
-  `getInstallmentDates` (datas com fim de mês), cálculos puros com 100% de
-  cobertura obrigatória.
+- `src/lib/finance.ts` — `splitInstallments` (divisão de centavos),
+  `getInstallmentDates` (datas com fim de mês) e
+  `getResumedInstallmentDates` (datas das parcelas restantes de um
+  parcelamento retomado), cálculos puros com 100% de cobertura
+  obrigatória.
 - `supabase/migrations/20261107013112_rpc_create_installment_purchase.sql`
-  — a RPC `create_installment_purchase`, que repete a mesma lógica de
-  `finance.ts` em SQL (não há como compartilhar código entre TS e
-  PL/pgSQL — qualquer mudança na regra precisa ser replicada nos dois
-  lugares e teste nos dois lugares: `finance.test.ts` e
-  `supabase/tests/05_installment_purchase.sql`).
+  — a RPC `create_installment_purchase` (compra nova), e
+  `supabase/migrations/20261107175301_rpc_resume_installment_purchase.sql`
+  — a RPC `resume_installment_purchase` (retomar parcelamento em
+  andamento). As duas repetem a mesma lógica de `finance.ts` em SQL (não
+  há como compartilhar código entre TS e PL/pgSQL — qualquer mudança na
+  regra precisa ser replicada nos dois lugares e teste nos dois lugares:
+  `finance.test.ts` e `supabase/tests/05_installment_purchase.sql` /
+  `supabase/tests/09_resume_installment_purchase.sql`).
 - `src/features/transactions/useTransactions.ts` —
-  `useCreateInstallmentPurchase`, chama a RPC via `supabase.rpc(...)`.
+  `useCreateInstallmentPurchase` e `useResumeInstallmentPurchase`, cada uma
+  chama sua RPC via `supabase.rpc(...)`.
 - `src/features/transactions/TransactionFormModal.tsx` — o select de
   parcelas só aparece quando `kind === 'expense'` e
   `paymentMethod === 'credit_card'`; 1x cai no fluxo normal
-  (`useCreateTransaction`), só 2x+ usa a RPC. Mostra também o aviso de
-  cartão (regra 4) na primeira vez que o usuário escolhe cartão
+  (`useCreateTransaction`), 2x+ sem o checkbox "já começou antes" usa
+  `create_installment_purchase`. Marcando o checkbox, o campo "Valor (R$)"
+  vira "Valor desta parcela (R$)" e aparecem dois selects ("Esta é a
+  parcela" / "De quantas no total") que chamam
+  `resume_installment_purchase` no submit. Mostra também o aviso de cartão
+  (regra 4) na primeira vez que o usuário escolhe cartão
   (`useCreditCardHint`, guardado em `localStorage`).
 
 ## Passo a passo
@@ -57,12 +75,20 @@ centavos, o cálculo das datas e a RPC que faz tudo isso no Postgres.
 
 - `finance.test.ts`: tabela de casos manuais (31/01 em ano bissexto e não
   bissexto, virada de ano) + propriedade `fast-check` (soma = total, nenhuma
-  parcela zero quando total ≥ n, diferença entre maior e menor ≤ resto).
+  parcela zero quando total ≥ n, diferença entre maior e menor ≤ resto);
+  `getResumedInstallmentDates` tem a mesma cobertura (quantidade de datas =
+  total - início + 1, rejeita início < 2 ou início > total).
 - `supabase/tests/05_installment_purchase.sql`: RPC cria N linhas cuja soma
   é o total; `installments` fora de 2–24 falha e não cria nenhuma linha.
+- `supabase/tests/09_resume_installment_purchase.sql`: RPC cria só as
+  parcelas restantes, todas com o mesmo valor, `installment_number`
+  sequencial; início na parcela 1 ou início > total são rejeitados sem
+  criar nenhuma linha.
 - `TransactionFormModal.test.tsx`: fluxo de 3x chama
-  `createInstallmentPurchase` com os parâmetros certos, não chama
-  `createTransaction`.
+  `createInstallmentPurchase` com os parâmetros certos; fluxo "já começou
+  antes" (checkbox marcado) chama `resumeInstallmentPurchase` com
+  `startInstallment`/`totalInstallments` certos; nenhum dos dois fluxos
+  chama `createTransaction`.
 
 ## Armadilhas conhecidas
 
@@ -87,5 +113,5 @@ centavos, o cálculo das datas e a RPC que faz tudo isso no Postgres.
 - [ ] `npm test` e `npm run test:db` passam.
 - [ ] Mudança na regra de divisão/data está replicada em `finance.ts` **e**
       na migration da RPC, com teste nos dois lugares.
-- [ ] `splitInstallments`/`getInstallmentDates` continuam com 100% de
-      cobertura.
+- [ ] `splitInstallments`/`getInstallmentDates`/`getResumedInstallmentDates`
+      continuam com 100% de cobertura.

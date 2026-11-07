@@ -110,6 +110,37 @@ export function useCreateInstallmentPurchase() {
   })
 }
 
+export function useResumeInstallmentPurchase() {
+  const householdId = useHouseholdId()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (input: {
+      categoryId: string
+      installmentAmountCents: number
+      startInstallment: number
+      totalInstallments: number
+      firstOccurredOn: string
+      description: string | null
+    }) => {
+      const { error } = await supabase.rpc('resume_installment_purchase', {
+        p_household_id: householdId as string,
+        p_category_id: input.categoryId,
+        p_installment_amount_cents: input.installmentAmountCents,
+        p_start_installment: input.startInstallment,
+        p_total_installments: input.totalInstallments,
+        p_first_occurred_on: input.firstOccurredOn,
+        p_description: input.description ?? undefined,
+      })
+
+      if (error) throw error
+    },
+    onSuccess: () => {
+      invalidateFinanceQueries(queryClient, householdId)
+    },
+  })
+}
+
 export function useSoftDeleteTransaction() {
   const householdId = useHouseholdId()
   const queryClient = useQueryClient()

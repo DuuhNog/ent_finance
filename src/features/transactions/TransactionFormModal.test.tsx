@@ -4,19 +4,27 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { TransactionFormModal } from './TransactionFormModal'
 
-const { useCategories, mutateAsync, installmentMutateAsync } = vi.hoisted(
-  () => ({
-    useCategories: vi.fn(),
-    mutateAsync: vi.fn(),
-    installmentMutateAsync: vi.fn(),
-  }),
-)
+const {
+  useCategories,
+  mutateAsync,
+  installmentMutateAsync,
+  resumeMutateAsync,
+} = vi.hoisted(() => ({
+  useCategories: vi.fn(),
+  mutateAsync: vi.fn(),
+  installmentMutateAsync: vi.fn(),
+  resumeMutateAsync: vi.fn(),
+}))
 
 vi.mock('../categories/useCategories', () => ({ useCategories }))
 vi.mock('./useTransactions', () => ({
   useCreateTransaction: () => ({ mutateAsync, isPending: false }),
   useCreateInstallmentPurchase: () => ({
     mutateAsync: installmentMutateAsync,
+    isPending: false,
+  }),
+  useResumeInstallmentPurchase: () => ({
+    mutateAsync: resumeMutateAsync,
     isPending: false,
   }),
 }))
@@ -125,6 +133,43 @@ describe('TransactionFormModal', () => {
     expect(mutateAsync).not.toHaveBeenCalled()
   })
 
+  it('resumes an in-progress installment plan with a fixed per-installment amount', async () => {
+    const user = userEvent.setup()
+    resumeMutateAsync.mockResolvedValue(undefined)
+    render(<TransactionFormModal onClose={vi.fn()} />)
+
+    await user.type(screen.getByLabelText('Valor (R$)'), '43,99')
+    await user.click(screen.getByText('Escolha uma categoria'))
+    await user.click(await screen.findByText('Mercado'))
+    await user.click(screen.getByText('Escolha a forma de pagamento'))
+    await user.click(await screen.findByText('Cartão de crédito'))
+
+    await user.click(
+      screen.getByText('Compra parcelada que já começou antes de usar o app'),
+    )
+
+    await user.click(screen.getByText('2x', { selector: 'span' }))
+    await user.click(await screen.findByText('10x'))
+
+    await user.click(screen.getByText('2', { selector: 'span' }))
+    await user.click(await screen.findByText('5'))
+
+    await user.click(screen.getByRole('button', { name: 'Salvar' }))
+
+    await waitFor(() => {
+      expect(resumeMutateAsync).toHaveBeenCalledWith(
+        expect.objectContaining({
+          categoryId: 'cat-1',
+          installmentAmountCents: 4399,
+          startInstallment: 5,
+          totalInstallments: 10,
+        }),
+      )
+    })
+    expect(mutateAsync).not.toHaveBeenCalled()
+    expect(installmentMutateAsync).not.toHaveBeenCalled()
+  })
+
   function beforeEachSetup() {
     beforeEach(() => {
       useCategories.mockImplementation((kind?: 'expense' | 'income') => ({
@@ -135,6 +180,7 @@ describe('TransactionFormModal', () => {
       }))
       mutateAsync.mockReset()
       installmentMutateAsync.mockReset()
+      resumeMutateAsync.mockReset()
     })
   }
 })

@@ -120,6 +120,46 @@ export function getInstallmentDates(
   )
 }
 
+/**
+ * Calcula as datas das parcelas restantes de uma compra parcelada iniciada
+ * antes de usar o app (ex.: a fatura mostra "parcela 5/10" e as parcelas
+ * 1-4 já aconteceram fora do app). `startInstallment` é o número desta
+ * parcela (sempre >= 2 — a parcela 1 sempre entra pelo fluxo normal de
+ * `getInstallmentDates`), `totalInstallments` o total do parcelamento
+ * original. Retorna uma data por parcela restante (de `startInstallment`
+ * até `totalInstallments`), começando em `firstOccurredOn`.
+ */
+export function getResumedInstallmentDates(
+  firstOccurredOn: string,
+  startInstallment: number,
+  totalInstallments: number,
+): string[] {
+  if (
+    !Number.isInteger(totalInstallments) ||
+    totalInstallments < MIN_INSTALLMENTS ||
+    totalInstallments > MAX_INSTALLMENTS
+  ) {
+    throw new RangeError(
+      `totalInstallments deve ser um inteiro entre ${String(MIN_INSTALLMENTS)} e ${String(MAX_INSTALLMENTS)}`,
+    )
+  }
+  if (
+    !Number.isInteger(startInstallment) ||
+    startInstallment < MIN_INSTALLMENTS ||
+    startInstallment > totalInstallments
+  ) {
+    throw new RangeError(
+      `startInstallment deve ser um inteiro entre ${String(MIN_INSTALLMENTS)} e totalInstallments (${String(totalInstallments)})`,
+    )
+  }
+
+  const remaining = totalInstallments - startInstallment + 1
+
+  return Array.from({ length: remaining }, (_, index) =>
+    addMonthsClamped(firstOccurredOn, index),
+  )
+}
+
 export interface BillPayment {
   /** Primeiro dia do mês de competência em que a conta foi paga. */
   competenceMonth: string

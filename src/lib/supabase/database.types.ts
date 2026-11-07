@@ -473,6 +473,42 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      resume_installment_purchase: {
+        Args: {
+          p_category_id: string
+          p_description?: string
+          p_first_occurred_on: string
+          p_household_id: string
+          p_installment_amount_cents: number
+          p_start_installment: number
+          p_total_installments: number
+        }
+        Returns: {
+          amount_cents: number
+          category_id: string
+          competence_month: string | null
+          created_at: string
+          created_by: string
+          deleted_at: string | null
+          description: string | null
+          household_id: string
+          id: string
+          installment_group_id: string | null
+          installment_number: number | null
+          installment_total: number | null
+          kind: string
+          occurred_on: string
+          payment_method: string | null
+          recurring_bill_id: string | null
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: '*'
+          to: 'transactions'
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
     }
     Enums: {
       [_ in never]: never
