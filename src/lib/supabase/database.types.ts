@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: '14.18'
+  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -46,7 +51,6 @@ export type Database = {
           row_id: string
           table_name: string
         }
-        ComputedFields: never
         Insert: {
           action: string
           changed_at?: string
@@ -91,7 +95,6 @@ export type Database = {
           name: string
           updated_at: string
         }
-        ComputedFields: never
         Insert: {
           archived_at?: string | null
           created_at?: string
@@ -136,7 +139,6 @@ export type Database = {
           kind: string
           updated_at: string
         }
-        ComputedFields: never
         Insert: {
           amount_cents: number
           archived_at?: string | null
@@ -183,7 +185,6 @@ export type Database = {
           id: string
           user_id: string
         }
-        ComputedFields: never
         Insert: {
           created_at?: string
           household_id: string
@@ -213,7 +214,6 @@ export type Database = {
           name: string
           updated_at: string
         }
-        ComputedFields: never
         Insert: {
           created_at?: string
           id?: string
@@ -236,7 +236,6 @@ export type Database = {
           id: string
           updated_at: string
         }
-        ComputedFields: never
         Insert: {
           created_at?: string
           display_name: string
@@ -277,7 +276,6 @@ export type Database = {
           start_month: string
           updated_at: string
         }
-        ComputedFields: never
         Insert: {
           amount_cents: number
           archived_at?: string | null
@@ -345,11 +343,10 @@ export type Database = {
           recurring_bill_id: string | null
           updated_at: string
         }
-        ComputedFields: never
         Insert: {
           amount_cents: number
           category_id: string
-          competence_month?: never
+          competence_month?: string | null
           created_at?: string
           created_by?: string
           deleted_at?: string | null
@@ -368,7 +365,7 @@ export type Database = {
         Update: {
           amount_cents?: number
           category_id?: string
-          competence_month?: never
+          competence_month?: string | null
           created_at?: string
           created_by?: string
           deleted_at?: string | null
